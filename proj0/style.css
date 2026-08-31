@@ -1,0 +1,129 @@
+/* =========================
+   GLOBAL
+   ========================= */
+
+   body {
+    font-family: Arial, Helvetica, sans-serif;
+
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 20px;
+
+    line-height: 1.6;
+}
+
+
+/* =========================
+   HEADER
+   ========================= */
+
+header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+header h1 {
+    margin-bottom: 5px;
+}
+
+header h2 {
+    font-weight: normal;
+}
+
+
+/* =========================
+   SECTIONS
+   ========================= */
+
+section {
+    margin-bottom: 80px;
+}
+
+section h2 {
+    margin-bottom: 20px;
+}
+
+
+/* =========================
+   IMAGE LAYOUT
+   ========================= */
+
+.image-row {
+    display: flex;
+    gap: 30px;
+
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+figure {
+    flex: 1;
+    margin: 0;
+}
+
+figure img {
+    width: 100%;
+    height: auto;
+
+    display: block;
+}
+
+.small-image {
+    width: 300px;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+}
+
+figcaption {
+    text-align: center;
+
+    margin-top: 10px;
+
+    font-weight: bold;
+}
+
+
+/* =========================
+   DOLLY ZOOM
+   ========================= */
+
+.gif-container {
+    text-align: center;
+
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.gif-container img {
+    max-width: 700px;
+    width: 100%;
+}
+
+
+/* =========================
+   FOOTER
+   ========================= */
+
+footer {
+    text-align: center;
+
+    margin-top: 80px;
+
+    padding-top: 30px;
+
+    border-top: 1px solid #ccc;
+}
+
+
+/* =========================
+   MOBILE
+   ========================= */
+
+@media (max-width: 700px) {
+
+    .image-row {
+        flex-direction: column;
+    }
+
+}
