@@ -27,11 +27,7 @@
       <div class="hero-copy">
         <p class="eyebrow">Project 01 · Fall 2026</p>
         <h1>Images of the<br>Russian Empire</h1>
-        <p class="lede">
-          Reconstructing color from Prokudin-Gorskii glass plates by aligning red and green
-          exposures to blue with normalized cross-correlation, then improving a difficult
-          case with Sobel-gradient features.
-        </p>
+        <p class="lede">Aligning B/G/R glass-plate exposures with NCC and a coarse-to-fine image pyramid.</p>
         <dl class="quick-facts">
           <div><dt>Metric</dt><dd>NCC</dd></div>
           <div><dt>Reference</dt><dd>Blue</dd></div>
@@ -97,12 +93,7 @@
 
         <div class="method-grid">
           <div>
-            <p>
-              Each plate stores three monochrome exposures stacked vertically in
-              <strong>blue, green, red</strong> order. I split the plate, keep blue fixed,
-              and translate green and red until their similarity to blue is maximal.
-              The shifted channels are then stacked into the final RGB image.
-            </p>
+            <p>Blue is fixed. I search for the green and red translations with the highest NCC score, then stack the shifted channels as RGB.</p>
 
             <div class="formula">
               <span>NCC(A, B)</span>
@@ -110,10 +101,7 @@
               <span>Σ(A − Ā)(B − B̄) / √[Σ(A − Ā)² Σ(B − B̄)²]</span>
             </div>
 
-            <p class="small">
-              NCC is computed on exposure values over a shared overlapping interior.
-              Higher scores indicate a better match.
-            </p>
+            <p class="small">NCC is computed on the shared interior; higher is better.</p>
           </div>
 
           <aside class="settings-card">
@@ -215,10 +203,7 @@
         <div class="section-heading">
           <p class="eyebrow">04 · Multi-scale alignment</p>
           <h2>All supplied images</h2>
-          <p>
-            For full-resolution TIFFs, the pyramid carries a coarse estimate upward through
-            small local searches. One fixed configuration was used throughout.
-          </p>
+          <p>For full-resolution TIFFs, a coarse estimate is refined with small local searches. The same configuration was used throughout.</p>
         </div>
 
         <div class="result-grid">
@@ -279,11 +264,7 @@
         <div class="section-heading">
           <p class="eyebrow">05 · Beyond the supplied set</p>
           <h2>Three more collection plates</h2>
-          <p>
-            These images came from the
-            <a href="https://www.loc.gov/collections/prokudin-gorskii/">Library of Congress Prokudin-Gorskii collection</a>
-            and used the exact same pipeline, with no per-image tuning.
-          </p>
+          <p>Three plates from the <a href="https://www.loc.gov/collections/prokudin-gorskii/">Library of Congress collection</a>, using the same settings and no per-image tuning.</p>
         </div>
 
         <div class="result-grid three">
@@ -296,55 +277,29 @@
       <section class="notes" id="failure">
         <div class="section-heading">
           <p class="eyebrow">06 · Failure analysis</p>
-          <h2>Where raw-pixel NCC breaks.</h2>
+          <h2>Baseline failure: Emir of Bukhara.</h2>
         </div>
 
         <div class="notes-grid">
           <div>
             <h3>Emir of Bukhara</h3>
-            <p>
-              Green aligns at <code>(24, 49)</code>, but the baseline red channel lands at
-              <code>(-205, 141)</code>. The red and blue exposures have substantially different
-              brightness patterns, so raw-intensity NCC finds a false correlation rather than
-              the correct geometric correspondence.
-            </p>
+            <p>Green aligns at <code>(24, 49)</code>, but raw-intensity NCC sends red to <code>(-205, 141)</code>. The red and blue channels have very different brightness patterns, so NCC selects a false match.</p>
           </div>
 
-          <div>
-            <h3>What I changed</h3>
-            <p>
-              Instead of changing the pyramid or search strategy, I changed only the feature
-              representation used during scoring. The optional experiment below computes
-              Sobel gradient magnitude before NCC so that the search compares structural
-              boundaries rather than absolute brightness.
-            </p>
-          </div>
+          <div><h3>Fix</h3><p>I kept the search and pyramid unchanged, but scored Sobel-gradient magnitude instead of raw intensity.</p></div>
         </div>
       </section>
 
       <section id="bells-whistles">
         <div class="section-heading">
           <p class="eyebrow">07 · Bells &amp; Whistles</p>
-          <h2>Better features: Sobel-gradient alignment.</h2>
-          <p>
-            The assignment suggests using gradients or edges when RGB intensity similarity
-            is unreliable. I tested that idea on the one supplied image where the baseline
-            clearly fails: Emir of Bukhara.
-          </p>
+          <h2>Sobel-gradient matching.</h2>
+          <p>Gradient magnitude compares edges instead of absolute brightness.</p>
         </div>
 
         <div class="bells-intro">
           <div>
-            <p>
-              In the baseline method, each candidate translation is scored using NCC on raw
-              grayscale intensity. This assumes that corresponding objects have similar
-              brightness across the blue, green, and red exposures.
-            </p>
-            <p>
-              For strongly colored materials this assumption can break: a region can be
-              bright through one filter and dark through another even though its geometric
-              location is unchanged.
-            </p>
+            <p>For Emir, the baseline produces visible ghosting. I compute Sobel gradient magnitude for each channel, run the same NCC pyramid on those features, then apply the resulting shifts to the original exposures.</p>
           </div>
 
           <div class="feature-equation" aria-label="Comparison between raw-intensity and gradient feature matching">
@@ -395,57 +350,8 @@
         </div>
 
         <div class="bells-explanation">
-          <h3>Why gradients help</h3>
-          <p>
-            Sobel gradient magnitude emphasizes local intensity changes instead of absolute
-            brightness. Boundaries such as clothing outlines, windows, and architectural
-            edges tend to occur at the same geometric locations across all three exposures
-            even when their brightness differs.
-          </p>
-
-          <p>
-            The image pyramid, translation-only motion model, NCC objective, coarse and
-            refinement radii, and 10% scoring crop are unchanged. Only the representation
-            used to score each candidate translation changes.
-          </p>
-
-          <p>
-            Gradients are used only to <strong>estimate the displacement</strong>. Once the
-            best displacement is found, I apply that translation to the original grayscale
-            red and green exposures and stack those original channels into the final RGB image.
-          </p>
-        </div>
-      </section>
-
-      <section id="takeaways">
-        <div class="section-heading">
-          <p class="eyebrow">08 · Takeaways</p>
-          <h2>What worked.</h2>
-          <p>
-            Raw-intensity NCC plus a coarse-to-fine pyramid is sufficient for nearly the
-            entire supplied set. Border-aware scoring improves stability, and gradient
-            features provide a targeted fix for a case where intensity correspondence
-            is unreliable.
-          </p>
-        </div>
-
-        <div class="takeaway-grid">
-          <div>
-            <strong>Single scale</strong>
-            <span>Simple exhaustive search is enough for the low-resolution JPEGs.</span>
-          </div>
-          <div>
-            <strong>Image pyramid</strong>
-            <span>Large TIFF displacements become practical with coarse-to-fine refinement.</span>
-          </div>
-          <div>
-            <strong>Border-aware NCC</strong>
-            <span>Ignoring unreliable plate borders prevents false correlations.</span>
-          </div>
-          <div>
-            <strong>Gradient features</strong>
-            <span>Sobel edges handle cross-channel brightness differences more robustly.</span>
-          </div>
+          <h3>Result</h3>
+          <p>Edges occur at the same locations across channels even when brightness differs. The gradient run changes only the scoring representation; the pyramid, NCC search, 10% border crop, and final RGB composition stay the same.</p>
         </div>
       </section>
 
