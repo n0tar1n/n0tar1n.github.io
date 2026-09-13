@@ -19,28 +19,21 @@ body { margin: 0; background: #fff; color: var(--ink); font: 16px/1.6 -apple-sys
 .nav-links a { color: var(--muted); font-size: .76rem; text-decoration: none; }
 .nav-links a:hover, .nav-links a:focus { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
 
-.hero { display: grid; grid-template-columns: 1fr 250px; gap: 3rem; align-items: center; padding: 4.2rem 0 3.4rem; border-bottom: 1px solid var(--line); }
+.hero { padding: 4.2rem 0 3.4rem; border-bottom: 1px solid var(--line); }
 .eyebrow { margin: 0 0 .45rem; color: var(--muted); font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
 h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; font-weight: 500; letter-spacing: -.02em; line-height: 1.15; }
 h1 { margin: 0; font-size: clamp(2.4rem, 5vw, 4.1rem); }
 h2 { margin: 0 0 .65rem; font-size: clamp(1.65rem, 3.4vw, 2.3rem); }
 h3 { margin: 0 0 .45rem; font-size: 1.12rem; }
-.lede { max-width: 620px; margin: 1rem 0 1.5rem; color: var(--muted); font-size: 1rem; }
-.quick-facts { display: flex; flex-wrap: wrap; gap: 1.2rem; margin: 0; }
-.quick-facts div { display: grid; gap: .05rem; }
-.quick-facts dt, .card-label { color: var(--muted); font-size: .64rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-.quick-facts dd { margin: 0; font-size: .85rem; font-weight: 600; }
-
-.channel-visual { display: flex; align-items: center; justify-content: center; gap: .65rem; padding: 1rem; border: 1px solid var(--line); }
-.plates { display: grid; gap: .25rem; }
-.plate, .rgb-plate { display: grid; place-items: center; border: 1px solid #d8d8d8; color: var(--ink); font: 700 .7rem/1 ui-monospace, SFMono-Regular, Menlo, monospace; }
-.plate { width: 76px; height: 30px; background: #f4f4f4; }
-.arrow { color: var(--muted); font: 1.35rem/1 Georgia, serif; }
-.rgb-plate { width: 78px; height: 96px; background: linear-gradient(135deg, #f2f2f2, #e4e9e5); }
-.rgb-plate small { color: var(--muted); font: 600 .55rem/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: .05em; text-transform: uppercase; }
+.lede { max-width: 620px; margin: 1rem 0 0; color: var(--muted); font-size: 1rem; }
+.card-label { color: var(--muted); font-size: .64rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 
 .report > section { padding: 3.5rem 0; border-bottom: 1px solid var(--line); }
 .section-heading > p:not(.eyebrow) { max-width: 700px; margin: 0; color: var(--muted); }
+#input-goal { padding-bottom: 1.2rem; border-bottom: 0; }
+.part-one-results { padding-top: 1.2rem; }
+.section-intro { max-width: 720px; margin: 0; color: var(--muted); }
+.results-heading { margin-top: 1.75rem; }
 
 .input-goal-grid { display: grid; grid-template-columns: 145px auto 1fr; gap: 1.2rem; align-items: center; margin-top: 1.4rem; }
 .stacked-input { margin: 0; border: 1px solid var(--line); }
@@ -130,10 +123,8 @@ footer a { color: var(--ink); }
   .wrap { width: min(100% - 2rem, 980px); }
   .nav { align-items: flex-start; flex-direction: column; padding: .8rem 0; }
   .nav-links { gap: .6rem; }
-  .hero, .method-grid, .pyramid-story, .border-story, .notes-grid, .bells-intro, .comparison-grid { grid-template-columns: 1fr; }
-  .hero { gap: 1.5rem; padding: 3rem 0 2.5rem; }
-  .channel-visual { max-width: 250px; }
-  .quick-facts { gap: .9rem; }
+  .method-grid, .pyramid-story, .border-story, .notes-grid, .bells-intro, .comparison-grid { grid-template-columns: 1fr; }
+  .hero { padding: 3rem 0 2.5rem; }
   .report > section { padding: 2.8rem 0; }
   .input-goal-grid { grid-template-columns: 1fr; }
   .stacked-input { width: 145px; }

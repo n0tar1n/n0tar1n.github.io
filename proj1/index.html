@@ -27,25 +27,6 @@
         <p class="eyebrow">Project 01 · Fall 2026</p>
         <h1>Images of the<br>Russian Empire</h1>
         <p class="lede">Aligning B/G/R glass-plate exposures with NCC and a coarse-to-fine image pyramid.</p>
-        <dl class="quick-facts">
-          <div><dt>Metric</dt><dd>NCC</dd></div>
-          <div><dt>Reference</dt><dd>Blue</dd></div>
-          <div><dt>Images</dt><dd>17</dd></div>
-          <div><dt>Extra</dt><dd>Sobel edges</dd></div>
-        </dl>
-      </div>
-
-      <div class="channel-visual" role="img" aria-label="Three aligned blue, green, and red exposures combine into one RGB result">
-        <div class="plates">
-          <span class="plate blue">B</span>
-          <span class="plate green">G</span>
-          <span class="plate red">R</span>
-        </div>
-        <span class="arrow">→</span>
-        <div class="rgb-plate">
-          <span>RGB</span>
-          <small>aligned result</small>
-        </div>
       </div>
     </section>
 
@@ -56,6 +37,7 @@
           <p class="eyebrow">Part 1 · Single-scale alignment</p>
           <h2>Single-scale alignment.</h2>
         </div>
+        <h3>Input and goal</h3>
 
         <div class="input-goal-grid">
           <figure class="stacked-input">
@@ -84,12 +66,10 @@
         </p>
       </section>
 
-      <section id="single">
-        <div class="section-heading">
-          <p class="eyebrow">Part 1 · Results</p>
-          <h2>Low-resolution JPEGs</h2>
-          <p>For each channel, I test every integer shift in <code>[-15, 15]</code> and keep the highest NCC score.</p>
-        </div>
+      <section id="single" class="part-one-results">
+        <h3>Approach</h3>
+        <p class="section-intro">For the low-resolution JPEGs, I test every integer shift in <code>[-15, 15]</code> and keep the highest NCC score.</p>
+        <h3 class="results-heading">Results</h3>
 
         <div class="result-grid three">
           <figure>
