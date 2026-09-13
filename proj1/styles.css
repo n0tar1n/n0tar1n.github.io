@@ -34,6 +34,10 @@ h3 { margin: 0 0 .45rem; font-size: 1.12rem; }
 .part-one-results { padding-top: 1.2rem; }
 .section-intro { max-width: 720px; margin: 0; color: var(--muted); }
 .results-heading { margin-top: 1.75rem; }
+#method { padding-bottom: 1.2rem; border-bottom: 0; }
+.part-two-results { padding-top: 1.2rem; }
+.part-subheading { max-width: 700px; }
+.part-subheading > p:not(.eyebrow) { margin: 0; color: var(--muted); }
 
 .input-goal-grid { display: grid; grid-template-columns: 145px auto 1fr; gap: 1.2rem; align-items: center; margin-top: 1.4rem; }
 .stacked-input { margin: 0; border: 1px solid var(--line); }
