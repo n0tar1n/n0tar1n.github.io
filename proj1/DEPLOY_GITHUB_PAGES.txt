@@ -1,0 +1,43 @@
+CS180 Project 1 Webpage — GitHub Pages Deployment
+====================================================
+
+This folder is a static website. It contains NO project Python code, which is intentional:
+CS180 requires code to be uploaded to Gradescope only and not hosted publicly.
+
+Recommended deployment
+----------------------
+1. In your GitHub Pages repository, create a folder named `proj1`.
+2. Copy the CONTENTS of this folder into that `proj1` folder:
+       index.html
+       styles.css
+       assets/
+3. Commit and push to the branch used by GitHub Pages.
+4. Open the resulting public URL and verify that every image loads.
+
+If your GitHub Pages site is at:
+    https://USERNAME.github.io/
+then a `proj1` folder normally appears at:
+    https://USERNAME.github.io/proj1/
+
+Submission steps after deployment
+---------------------------------
+1. Open the live Project 1 page in Chrome.
+2. Print -> Save as PDF.
+3. IMPORTANT: enable "Headers and footers" so the live webpage URL is visible in the PDF.
+4. Save the file as `page.pdf`.
+5. Your Gradescope ZIP should have this structure:
+
+    submission.zip
+    ├── code/
+    │   ├── main.py
+    │   ├── colorize.py
+    │   ├── batch_run.py
+    │   ├── requirements.txt
+    │   └── README.txt
+    └── web/
+        └── page.pdf
+
+Do NOT place the JPG/TIF webpage images in the Gradescope ZIP.
+Do NOT publicly upload your project Python code to the GitHub Pages repository.
+
+Also submit the public webpage URL through the Project 1 class-gallery Google Form.

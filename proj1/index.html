@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CS180 Project 1: Images of the Russian Empire — colorizing Prokudin-Gorskii glass plate photographs with single-scale and image-pyramid alignment.">
+  <title>CS180 Project 1 — Images of the Russian Empire</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="hero">
+    <nav class="site-nav" aria-label="Project navigation">
+      <a class="brand" href="#top">CS180 · Project 1</a>
+      <div class="nav-links">
+        <a href="#method">Method</a>
+        <a href="#single">Single-scale</a>
+        <a href="#pyramid">Pyramid</a>
+        <a href="#external">External</a>
+        <a href="#failure">Failure</a>
+      </div>
+    </nav>
+    <div class="hero-grid" id="top">
+      <div class="hero-copy">
+        <p class="eyebrow">CS180 · Fall 2026</p>
+        <h1>Images of the Russian Empire</h1>
+        <p class="lede">Colorizing Prokudin-Gorskii glass-plate photographs by aligning the green and red exposures to the blue exposure, first with exhaustive search and then with a coarse-to-fine image pyramid.</p>
+        <div class="summary-grid">
+          <div><strong>17</strong><span>pyramid results</span></div>
+          <div><strong>1</strong><span>known failure</span></div>
+          <div><strong>≈3.15s</strong><span>mean TIFF runtime</span></div>
+          <div><strong>NCC</strong><span>matching metric</span></div>
+        </div>
+      </div>
+      <figure class="hero-image">
+        <img src="assets/pyramid/supplied/icon_colorized.jpg" alt="Colorized Icon photograph">
+        <figcaption>One of the full-resolution pyramid results.</figcaption>
+      </figure>
+    </div>
+  </header>
+
+  <main>
+    <section class="section intro">
+      <div class="section-kicker">Overview</div>
+      <h2>From three monochrome exposures to one RGB photograph</h2>
+      <p>Each digitized plate contains three grayscale exposures stacked vertically in <strong>blue, green, red</strong> order. I split the plate into three equal images, keep blue fixed, and estimate translations that align green and red to blue. The final RGB image is formed by stacking the aligned channels.</p>
+      <p class="note"><strong>Offset convention on this page:</strong> all displacements are reported as <code>(x, y)</code>, where positive <code>x</code> moves a channel right and positive <code>y</code> moves it down.</p>
+    </section>
+
+    <section class="section" id="method">
+      <div class="section-kicker">Approach</div>
+      <h2>Alignment metric and coarse-to-fine search</h2>
+      <div class="method-grid">
+        <article class="method-card">
+          <span class="step">01</span><h3>Split and normalize</h3>
+          <p>The input plate is converted to floating point values in [0,1] and split into equally sized B, G, and R exposures.</p>
+        </article>
+        <article class="method-card">
+          <span class="step">02</span><h3>Score with NCC</h3>
+          <p>I use mean-subtracted normalized cross-correlation. Higher NCC indicates better agreement between the translated channel and the blue reference.</p>
+          <p class="formula">NCC(a,b) = ((a−ā) · (b−b̄)) / (‖a−ā‖ ‖b−b̄‖)</p>
+        </article>
+        <article class="method-card">
+          <span class="step">03</span><h3>Ignore unreliable borders</h3>
+          <p>Candidate shifts are scored only on a shared interior region. For pyramid alignment, the outer 10% is also ignored during scoring so dark glass-plate borders do not dominate NCC.</p>
+        </article>
+        <article class="method-card">
+          <span class="step">04</span><h3>Coarse-to-fine pyramid</h3>
+          <p>For large TIFFs, images are repeatedly resized by 0.5. I search ±15 pixels at the coarsest level, scale that estimate upward, then search only ±2 pixels around the prediction at each finer level.</p>
+        </article>
+      </div>
+      <div class="parameter-strip">
+        <span><b>Single-scale window</b> ±15 px</span>
+        <span><b>Pyramid scale</b> 0.5</span>
+        <span><b>Coarse radius</b> 15 px</span>
+        <span><b>Refine radius</b> 2 px</span>
+        <span><b>Min. pyramid size</b> 200 px</span>
+        <span><b>Scoring crop</b> 10%</span>
+      </div>
+    </section>
+
+    <section class="section" id="single">
+      <div class="section-kicker">Part 1</div>
+      <h2>Single-scale alignment on the low-resolution JPEGs</h2>
+      <p>The three small JPEGs can be aligned directly with an exhaustive search over translations in a ±15-pixel window. These results establish the baseline NCC alignment before introducing the pyramid.</p>
+      <div class="gallery three-col"><article class="result-card">
+      <img src="assets/single/cathedral_colorized.jpg" alt="Colorized result for Cathedral" loading="lazy">
+      <div class="card-body">
+        <div class="card-title-row"><h3>Cathedral</h3><span class="status good">Aligned</span></div>
+        <div class="offsets"><span>G→B <strong>(2, 5)</strong></span><span>R→B <strong>(3, 12)</strong></span></div>
+        <p class="runtime">single-scale</p>
+      </div>
+    </article>
+<article class="result-card">
+      <img src="assets/single/monastery_colorized.jpg" alt="Colorized result for Monastery" loading="lazy">
+      <div class="card-body">
+        <div class="card-title-row"><h3>Monastery</h3><span class="status good">Aligned</span></div>
+        <div class="offsets"><span>G→B <strong>(2, -3)</strong></span><span>R→B <strong>(2, 3)</strong></span></div>
+        <p class="runtime">single-scale</p>
+      </div>
+    </article>
+<article class="result-card">
+      <img src="assets/single/tobolsk_colorized.jpg" alt="Colorized result for Tobolsk" loading="lazy">
+      <div class="card-body">
+        <div class="card-title-row"><h3>Tobolsk</h3><span class="status good">Aligned</span></div>
+        <div class="offsets"><span>G→B <strong>(3, 3)</strong></span><span>R→B <strong>(3, 6)</strong></span></div>
+        <p class="runtime">single-scale</p>
+      </div>
+    </article></div>
+    </section>
+
+    <section class="section" id="pyramid">
+      <div class="section-kicker">Part 2</div>
+      <h2>Multi-scale pyramid results on all 14 provided images</h2>
+      <p>At full TIFF resolution, an exhaustive search over large displacements would be expensive. The pyramid makes the search fast by solving a smaller problem first and refining the estimate as resolution increases. I used the same parameters for every image.</p>
+      <div class="gallery"><article class="result-card">
+      <img src="assets/pyramid/supplied/cathedral_colorized.jpg" alt="Colorized result for Cathedral" loading="lazy">
+      <div class="card-body">
+        <div class="card-title-row"><h3>Cathedral</h3><span class="status good">Aligned</span></div>
+        <div class="offsets"><span>G→B <strong>(2, 5)</strong></span><span>R→B <strong>(3, 12)</strong></span></div>
+        <p class="runtime">0.26 s</p>
+      </div>
+    </article>
+<article class="result-card">
+      <img src="assets/pyramid/supplied/church_colorized.jpg" alt="Colorized result for Church" loading="lazy">
+      <div class="card-body">
+        <div class="card-title-row"><h3>Church</h3><span class="status good">Aligned</span></div>
+        <div class="offsets"><span>G→B <strong>(4, 25)</strong></span><span>R→B <strong>(-4, 58)</strong></span></div>
+        <p class="runtime">3.06 s</p>
+      </div>
+    </article>
+<article class="result-card failure-card">
+      <img src="assets/pyramid/supplied/emir_colorized.jpg" alt="Colorized result for Emir of Bukhara" loading="lazy">
+      <div class="card-body">
+        <div class="card-title-row"><h3>Emir of Bukhara</h3><span class="status bad">Known failure</span></div>
+        <div class="offsets"><span>G→B <strong>(24, 49)</strong></span><span>R→B <strong>(-205, 141)</strong></span></div>
+        <p class="runtime">3.07 s</p><p class="failure-note">The red channel is visibly misaligned under raw-pixel NCC.</p>
+      </div>
+    </article>
+<article class="result-card">
+      <img src="assets/pyramid/supplied/harvesters_colorized.jpg" alt="Colorized result for Harvesters" loading="lazy">
+      <div class="card-body">
+        <div class="card-title-row"><h3>Harvesters</h3><span class="status good">Aligned</span></div>
+        <div class="offsets"><span>G→B <strong>(17, 60)</strong></span><span>R→B <strong>(13, 124)</strong></span></div>
+        <p class="runtime">2.83 s</p>
+      </div>
+    </article>
+<article class="result-card">
+      <img src="assets/pyramid/supplied/icon_colorized.jpg" alt="Colorized result for Icon" loading="lazy">
+      <div class="card-body">
+        <div class="card-title-row"><h3>Icon</h3><span class="status good">Aligned</span></div>
+        <div class="offsets"><span>G→B <strong>(17, 41)</strong></span><span>R→B <strong>(23, 89)</strong></span></div>
+        <p class="runtime">3.50 s</p>
+      </div>
+    </article>
+<article class="result-card">
+      <img src="assets/pyramid/supplied/ilemselga_colorized.jpg" alt="Colorized result for Ilemselga" loading="lazy">
+      <div class="card-body">
+        <div class="card-title-row"><h3>Ilemselga</h3><span class="status good">Aligned</span></div>
+        <div class="offsets"><span>G→B <strong>(7, 40)</strong></span><span>R→B <strong>(11, 130)</strong></span></div>
+        <p class="runtime">3.43 s</p>
+      </div>
+    </article>
+<article class="result-card">
+      <img src="assets/pyramid/supplied/melons_colorized.jpg" alt="Colorized result for Melons" loading="lazy">
+      <div class="card-body">
+        <div class="card-title-row"><h3>Melons</h3><span class="status good">Aligned</span></div>
+        <div class="offsets"><span>G→B <strong>(11, 82)</strong></span><span>R→B <strong>(13, 178)</strong></span></div>
+        <p class="runtime">3.10 s</p>
+      </div>
+    </article>
+<article class="result-card">
+      <img src="assets/pyramid/supplied/monastery_colorized.jpg" alt="Colorized result for Monastery" loading="lazy">
+      <div class="card-body">
+        <div class="card-title-row"><h3>Monastery</h3><span class="status good">Aligned</span></div>
+        <div class="offsets"><span>G→B <strong>(2, -3)</strong></span><span>R→B <strong>(2, 3)</strong></span></div>
+        <p class="runtime">0.18 s</p>
+      </div>
+    </article>
+<article class="result-card">
+      <img src="assets/pyramid/supplied/religous_painting_colorized.jpg" alt="Colorized result for Religious Painting" loading="lazy">
+      <div class="card-body">
+        <div class="card-title-row"><h3>Religious Painting</h3><span class="status good">Aligned</span></div>
+        <div class="offsets"><span>G→B <strong>(3, 28)</strong></span><span>R→B <strong>(7, 68)</strong></span></div>
+        <p class="runtime">3.36 s</p>
+      </div>
+    </article>
+<article class="result-card">
+      <img src="assets/pyramid/supplied/self_portrait_colorized.jpg" alt="Colorized result for Self Portrait" loading="lazy">
+      <div class="card-body">
+        <div class="card-title-row"><h3>Self Portrait</h3><span class="status good">Aligned</span></div>
+        <div class="offsets"><span>G→B <strong>(29, 79)</strong></span><span>R→B <strong>(37, 176)</strong></span></div>
+        <p class="runtime">3.17 s</p>
+      </div>
+    </article>
+<article class="result-card">
+      <img src="assets/pyramid/supplied/siren_colorized.jpg" alt="Colorized result for Siren" loading="lazy">
+      <div class="card-body">
+        <div class="card-title-row"><h3>Siren</h3><span class="status good">Aligned</span></div>
+        <div class="offsets"><span>G→B <strong>(-6, 49)</strong></span><span>R→B <strong>(-25, 96)</strong></span></div>
+        <p class="runtime">3.07 s</p>
+      </div>
+    </article>
+<article class="result-card">
+      <img src="assets/pyramid/supplied/three_generations_colorized.jpg" alt="Colorized result for Three Generations" loading="lazy">
+      <div class="card-body">
+        <div class="card-title-row"><h3>Three Generations</h3><span class="status good">Aligned</span></div>
+        <div class="offsets"><span>G→B <strong>(14, 53)</strong></span><span>R→B <strong>(11, 112)</strong></span></div>
+        <p class="runtime">3.08 s</p>
+      </div>
+    </article>
+<article class="result-card">
+      <img src="assets/pyramid/supplied/tobolsk_colorized.jpg" alt="Colorized result for Tobolsk" loading="lazy">
+      <div class="card-body">
+        <div class="card-title-row"><h3>Tobolsk</h3><span class="status good">Aligned</span></div>
+        <div class="offsets"><span>G→B <strong>(3, 3)</strong></span><span>R→B <strong>(3, 6)</strong></span></div>
+        <p class="runtime">0.20 s</p>
+      </div>
+    </article>
+<article class="result-card">
+      <img src="assets/pyramid/supplied/wharf_colorized.jpg" alt="Colorized result for Wharf" loading="lazy">
+      <div class="card-body">
+        <div class="card-title-row"><h3>Wharf</h3><span class="status good">Aligned</span></div>
+        <div class="offsets"><span>G→B <strong>(-7, 15)</strong></span><span>R→B <strong>(-16, 83)</strong></span></div>
+        <p class="runtime">3.00 s</p>
+      </div>
+    </article></div>
+    </section>
+
+    <section class="section" id="external">
+      <div class="section-kicker">Additional examples</div>
+      <h2>Three additional Prokudin-Gorskii plates</h2>
+      <p>To test the same fixed pipeline beyond the supplied dataset, I downloaded three additional full-resolution glass-plate scans from the Library of Congress Prokudin-Gorskii collection and aligned them without per-image parameter tuning.</p>
+      <div class="gallery three-col"><article class="result-card">
+      <img src="assets/pyramid/external/Lodeinoe_colorized.jpg" alt="Colorized result for Lodeinoe" loading="lazy">
+      <div class="card-body">
+        <div class="card-title-row"><h3>Lodeinoe</h3><span class="status good">Aligned</span></div>
+        <div class="offsets"><span>G→B <strong>(11, 26)</strong></span><span>R→B <strong>(16, 63)</strong></span></div>
+        <p class="runtime">3.11 s</p>
+      </div>
+    </article>
+<article class="result-card">
+      <img src="assets/pyramid/external/Ostrechiny_colorized.jpg" alt="Colorized result for Ostrechiny" loading="lazy">
+      <div class="card-body">
+        <div class="card-title-row"><h3>Ostrechiny</h3><span class="status good">Aligned</span></div>
+        <div class="offsets"><span>G→B <strong>(-6, 13)</strong></span><span>R→B <strong>(-12, 133)</strong></span></div>
+        <p class="runtime">3.03 s</p>
+      </div>
+    </article>
+<article class="result-card">
+      <img src="assets/pyramid/external/Village_colorized.jpg" alt="Colorized result for Village" loading="lazy">
+      <div class="card-body">
+        <div class="card-title-row"><h3>Village</h3><span class="status good">Aligned</span></div>
+        <div class="offsets"><span>G→B <strong>(14, 49)</strong></span><span>R→B <strong>(20, 113)</strong></span></div>
+        <p class="runtime">3.34 s</p>
+      </div>
+    </article></div>
+    </section>
+
+    <section class="section failure-section" id="failure">
+      <div class="section-kicker">Failure analysis</div>
+      <h2>Emir of Bukhara: where raw-pixel NCC breaks down</h2>
+      <div class="failure-layout">
+        <img src="assets/pyramid/supplied/emir_colorized.jpg" alt="Misaligned Emir of Bukhara result">
+        <div>
+          <p>The green channel aligns well at <strong>(24, 49)</strong>, but NCC chooses a clearly incorrect red displacement of <strong>(−205, 141)</strong>. The red and blue exposures of the Emir have very different brightness patterns, so matching raw intensity values can prefer a false correlation even when geometric content is not aligned.</p>
+          <p>This is the single clear failure in the 17-image set. A natural improvement would be to align edge or gradient features rather than raw intensities, but I keep the baseline NCC result here because the project specifically asks for NCC/L2-based results.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="results-table">
+      <div class="section-kicker">Recorded measurements</div>
+      <h2>Offsets and runtimes</h2>
+      <p>The table below records the values used for the displayed results. Runtimes are measured on my local machine and include loading, alignment, composition, and output.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Set</th><th>Image</th><th>G→B (x,y)</th><th>R→B (x,y)</th><th>Runtime</th><th>Visual result</th></tr></thead>
+          <tbody><tr><td>Provided</td><td>Cathedral</td><td>(2, 5)</td><td>(3, 12)</td><td>0.26s</td><td>Good</td></tr>
+<tr><td>Provided</td><td>Church</td><td>(4, 25)</td><td>(-4, 58)</td><td>3.06s</td><td>Good</td></tr>
+<tr><td>Provided</td><td>Emir of Bukhara</td><td>(24, 49)</td><td>(-205, 141)</td><td>3.07s</td><td>Failure (R channel)</td></tr>
+<tr><td>Provided</td><td>Harvesters</td><td>(17, 60)</td><td>(13, 124)</td><td>2.83s</td><td>Good</td></tr>
+<tr><td>Provided</td><td>Icon</td><td>(17, 41)</td><td>(23, 89)</td><td>3.50s</td><td>Good</td></tr>
+<tr><td>Provided</td><td>Ilemselga</td><td>(7, 40)</td><td>(11, 130)</td><td>3.43s</td><td>Good</td></tr>
+<tr><td>Provided</td><td>Melons</td><td>(11, 82)</td><td>(13, 178)</td><td>3.10s</td><td>Good</td></tr>
+<tr><td>Provided</td><td>Monastery</td><td>(2, -3)</td><td>(2, 3)</td><td>0.18s</td><td>Good</td></tr>
+<tr><td>Provided</td><td>Religious Painting</td><td>(3, 28)</td><td>(7, 68)</td><td>3.36s</td><td>Good</td></tr>
+<tr><td>Provided</td><td>Self Portrait</td><td>(29, 79)</td><td>(37, 176)</td><td>3.17s</td><td>Good</td></tr>
+<tr><td>Provided</td><td>Siren</td><td>(-6, 49)</td><td>(-25, 96)</td><td>3.07s</td><td>Good</td></tr>
+<tr><td>Provided</td><td>Three Generations</td><td>(14, 53)</td><td>(11, 112)</td><td>3.08s</td><td>Good</td></tr>
+<tr><td>Provided</td><td>Tobolsk</td><td>(3, 3)</td><td>(3, 6)</td><td>0.20s</td><td>Good</td></tr>
+<tr><td>Provided</td><td>Wharf</td><td>(-7, 15)</td><td>(-16, 83)</td><td>3.00s</td><td>Good</td></tr>
+<tr><td>External</td><td>Lodeinoe</td><td>(11, 26)</td><td>(16, 63)</td><td>3.11s</td><td>Good</td></tr>
+<tr><td>External</td><td>Ostrechiny</td><td>(-6, 13)</td><td>(-12, 133)</td><td>3.03s</td><td>Good</td></tr>
+<tr><td>External</td><td>Village</td><td>(14, 49)</td><td>(20, 113)</td><td>3.34s</td><td>Good</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section conclusion">
+      <div class="section-kicker">Takeaways</div>
+      <h2>What worked</h2>
+      <p>A simple translation model plus NCC works surprisingly well for most of the collection. The key engineering improvement is the image pyramid: it expands the effective displacement range while keeping full-resolution computation small. Cropping the scoring region away from plate borders also made the matching much more stable, especially for images such as Church.</p>
+      <p>The final pipeline uses one fixed parameter set and processes full-resolution TIFFs in roughly three seconds each, while preserving the straightforward NCC baseline required by the assignment.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>CS180 Project 1 · Images of the Russian Empire</p>
+    <p><a href="https://cal-cs180.github.io/fa26/hw/proj1/index.html">Project specification</a> · <a href="https://www.loc.gov/collections/prokudin-gorskii/">Library of Congress Prokudin-Gorskii collection</a></p>
+  </footer>
+</body>
+</html>
