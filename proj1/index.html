@@ -33,8 +33,18 @@
     </section>
 
     <div class="wrap report">
+      <section id="input-goal">
+        <div class="section-heading"><p class="eyebrow">01 · Input and goal</p><h2>From one glass plate to RGB.</h2></div>
+        <div class="input-goal-grid">
+          <figure class="stacked-input"><img src="assets/input/cathedral_stacked.jpg" alt="Original Cathedral glass plate with blue, green, and red monochrome exposures stacked vertically"><figcaption><strong>Original input plate</strong><span>Cathedral · top to bottom: B, G, R</span></figcaption></figure>
+          <span class="process-arrow" aria-hidden="true">→</span>
+          <div class="channel-breakdown" aria-label="The three separate blue, green, and red channel images extracted from the stacked Cathedral plate"><div class="channel-crop blue-crop"><span>Blue</span></div><div class="channel-crop green-crop"><span>Green</span></div><div class="channel-crop red-crop"><span>Red</span></div></div>
+        </div>
+        <p class="input-explanation">Each glass plate stores three monochrome exposures vertically in B, G, R order. I split the plate into three equal sections, use the blue channel as the reference, align green and red to blue, and stack the aligned channels as RGB.</p>
+      </section>
+
       <section id="method">
-        <div class="section-heading"><p class="eyebrow">01 · Approach</p><h2>Align first, colorize second.</h2></div>
+        <div class="section-heading"><p class="eyebrow">02 · Approach</p><h2>Align first, colorize second.</h2></div>
         <div class="method-grid">
           <div>
             <p>Each plate stores three monochrome exposures stacked vertically in <strong>blue, green, red</strong> order. I split the plate, keep blue fixed, and translate green and red until their similarity to blue is maximal. The shifted channels are then stacked into the final RGB image.</p>
@@ -46,12 +56,19 @@
             <dl><div><dt>Single-scale search</dt><dd>±15 px</dd></div><div><dt>Pyramid scale</dt><dd>0.5</dd></div><div><dt>Coarse / refine radius</dt><dd>15 px / 2 px</dd></div><div><dt>Scoring crop</dt><dd>10% border</dd></div><div><dt>Minimum size</dt><dd>200 px</dd></div></dl>
           </aside>
         </div>
-        <div class="pyramid-steps" aria-label="Pyramid alignment process"><div><b>1</b><span>Downsample the exposures.</span></div><div><b>2</b><span>Estimate a large shift at low resolution.</span></div><div><b>3</b><span>Scale and refine it at each level.</span></div></div>
+        <div class="pyramid-story">
+          <div class="pyramid-visual" role="img" aria-label="An image pyramid with small, medium, and full-resolution levels; alignment starts at the smallest level and refines upward"><div class="pyramid-level small-level"><span>1/4</span></div><span class="pyramid-arrow">↗</span><div class="pyramid-level medium-level"><span>1/2</span></div><span class="pyramid-arrow">↗</span><div class="pyramid-level full-level"><span>full</span></div></div>
+          <div><p class="card-label">Why a pyramid?</p><p>Searching a large displacement range directly at full resolution is expensive. Instead, I estimate a rough displacement at the smallest level and propagate it upward, refining only a small neighborhood at every finer resolution.</p></div>
+        </div>
+        <div class="border-story">
+          <div class="border-visual" role="img" aria-label="A grayscale plate channel with its outer ten percent marked as ignored and its central interior marked as the matching-score region"><div class="score-region"><span>pixels used for NCC</span></div><span class="border-label">10% border ignored</span></div>
+          <div><p class="card-label">Why ignore the border?</p><p>The scanned plates contain strong black and white borders. These borders can dominate NCC and produce a false optimum. I therefore ignore the outer 10% of the image during pyramid scoring. This does not crop the final image; it only changes which pixels contribute to the matching score.</p></div>
+        </div>
         <p class="offset-note"><strong>Offset convention:</strong> <code>(x, y)</code> is the displacement applied to the named channel. Positive <code>x</code> moves right; positive <code>y</code> moves down.</p>
       </section>
 
       <section id="single">
-        <div class="section-heading"><p class="eyebrow">02 · Single-scale alignment</p><h2>Low-resolution JPEGs</h2><p>Exhaustive NCC search in a ±15-pixel window cleanly aligns each small example.</p></div>
+        <div class="section-heading"><p class="eyebrow">03 · Single-scale alignment</p><h2>Low-resolution JPEGs</h2><p>Exhaustive NCC search in a ±15-pixel window cleanly aligns each small example.</p></div>
         <div class="result-grid three">
           <figure><img src="assets/single/cathedral_colorized.jpg" alt="Colorized Cathedral"><figcaption><strong>Cathedral</strong><span>G→B (2, 5) · R→B (3, 12)</span><em>NCC · single scale</em></figcaption></figure>
           <figure><img src="assets/single/monastery_colorized.jpg" alt="Colorized Monastery"><figcaption><strong>Monastery</strong><span>G→B (2, -3) · R→B (2, 3)</span><em>NCC · single scale</em></figcaption></figure>
@@ -60,7 +77,7 @@
       </section>
 
       <section id="pyramid">
-        <div class="section-heading"><p class="eyebrow">03 · Multi-scale alignment</p><h2>All supplied images</h2><p>For full-resolution TIFFs, the pyramid carries a coarse estimate upward through small local searches. One fixed configuration was used throughout.</p></div>
+        <div class="section-heading"><p class="eyebrow">04 · Multi-scale alignment</p><h2>All supplied images</h2><p>For full-resolution TIFFs, the pyramid carries a coarse estimate upward through small local searches. One fixed configuration was used throughout.</p></div>
         <div class="result-grid">
           <figure><img src="assets/pyramid/supplied/cathedral_colorized.jpg" alt="Colorized Cathedral"><figcaption><strong>Cathedral</strong><span>G (2, 5) · R (3, 12)</span></figcaption></figure>
           <figure><img src="assets/pyramid/supplied/church_colorized.jpg" alt="Colorized Church"><figcaption><strong>Church</strong><span>G (4, 25) · R (-4, 58)</span></figcaption></figure>
@@ -83,7 +100,7 @@
       </section>
 
       <section id="external">
-        <div class="section-heading"><p class="eyebrow">04 · Beyond the supplied set</p><h2>Three more collection plates</h2><p>These images came from the <a href="https://www.loc.gov/collections/prokudin-gorskii/">Library of Congress Prokudin-Gorskii collection</a> and used the exact same pipeline, with no per-image tuning.</p></div>
+        <div class="section-heading"><p class="eyebrow">05 · Beyond the supplied set</p><h2>Three more collection plates</h2><p>These images came from the <a href="https://www.loc.gov/collections/prokudin-gorskii/">Library of Congress Prokudin-Gorskii collection</a> and used the exact same pipeline, with no per-image tuning.</p></div>
         <div class="result-grid three">
           <figure><img src="assets/pyramid/external/Lodeinoe_colorized.jpg" alt="Colorized Lodeinoe"><figcaption><strong>Lodeinoe</strong><span>G→B (11, 26) · R→B (16, 63)</span><em>3.11 s</em></figcaption></figure>
           <figure><img src="assets/pyramid/external/Ostrechiny_colorized.jpg" alt="Colorized Ostrechiny"><figcaption><strong>Ostrechiny</strong><span>G→B (-6, 13) · R→B (-12, 133)</span><em>3.03 s</em></figcaption></figure>
@@ -92,7 +109,7 @@
       </section>
 
       <section class="notes" id="failure">
-        <div class="section-heading"><p class="eyebrow">05 · Failure analysis & extras</p><h2>Where raw-pixel NCC breaks.</h2></div>
+        <div class="section-heading"><p class="eyebrow">06 · Failure analysis & extras</p><h2>Where raw-pixel NCC breaks.</h2></div>
         <div class="notes-grid"><div><h3>Emir of Bukhara</h3><p>Green aligns at <code>(24, 49)</code>, but red lands at an implausible <code>(-205, 141)</code>. The red and blue exposures have substantially different brightness patterns, so raw-pixel NCC finds a false correlation rather than geometric alignment. Edge or gradient alignment would be a useful next experiment.</p></div><div><h3>Bells & whistles</h3><p>Two implementation details improve the baseline: I exclude the outer 10% from scoring to avoid plate borders, and use a coarse-to-fine pyramid to make large-displacement TIFF alignment practical. The final channel shifts still use the required NCC pipeline.</p></div></div>
       </section>
     </div>
