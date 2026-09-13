@@ -9,76 +9,93 @@
 </head>
 <body>
   <header class="site-header" id="top">
-    <div class="wrap header-row">
+    <nav class="nav wrap" aria-label="Project navigation">
       <a class="course" href="../index.html">CS180</a>
-      <nav aria-label="Project sections"><a href="#method">Method</a><a href="#single">JPEGs</a><a href="#pyramid">TIFFs</a><a href="#external">More examples</a></nav>
-    </div>
+      <div class="nav-links"><a href="#method">Method</a><a href="#single">Single scale</a><a href="#pyramid">Pyramid</a><a href="#external">Extra images</a><a href="#failure">Notes</a></div>
+    </nav>
   </header>
-  <main class="wrap">
-    <section class="intro">
-      <p class="label">Project 1</p>
-      <h1>Images of the Russian Empire</h1>
-      <p class="summary">Colorizing Prokudin-Gorskii glass-plate photographs by aligning the green and red exposures to blue with normalized cross-correlation (NCC).</p>
-      <dl class="facts">
-        <div><dt>Metric</dt><dd>NCC on RGB pixel values</dd></div><div><dt>Reference</dt><dd>Blue channel</dd></div><div><dt>Results</dt><dd>14 supplied + 3 external</dd></div><div><dt>Failure</dt><dd>Emir of Bukhara</dd></div>
-      </dl>
-    </section>
 
-    <section id="method">
-      <p class="label">Method</p><h2>One alignment pipeline</h2>
-      <div class="method">
-        <p>Each input contains three monochrome exposures stacked vertically in <strong>blue, green, red</strong> order. I split the image, hold blue fixed, and translate green and red until their NCC score against blue is maximal. The aligned channels are then stacked into an RGB image.</p>
-        <ul><li><strong>Small JPEGs:</strong> exhaustive search in a ±15 px window.</li><li><strong>Large TIFFs:</strong> a 0.5-scale image pyramid; search ±15 px at the coarsest level, then ±2 px around the scaled estimate at each level.</li><li><strong>Border handling:</strong> score only the shared interior and ignore the outer 10% to reduce plate-border influence.</li></ul>
+  <main>
+    <section class="hero wrap">
+      <div class="hero-copy">
+        <p class="eyebrow">Project 01 · Fall 2026</p>
+        <h1>Images of the<br>Russian Empire</h1>
+        <p class="lede">Reconstructing color from Prokudin-Gorskii glass plates by aligning red and green exposures to blue with normalized cross-correlation.</p>
+        <dl class="quick-facts">
+          <div><dt>Metric</dt><dd>NCC</dd></div><div><dt>Reference</dt><dd>Blue</dd></div><div><dt>Images</dt><dd>17</dd></div><div><dt>Clear failures</dt><dd>1</dd></div>
+        </dl>
       </div>
-      <p class="offset-note"><strong>Offset convention:</strong> <code>(x, y)</code> is the translation applied to the named channel; positive <code>x</code> moves right and positive <code>y</code> moves down.</p>
-    </section>
-
-    <section id="single">
-      <p class="label">Single-scale results</p><h2>Low-resolution JPEGs</h2><p>Direct NCC search aligns all three low-resolution examples.</p>
-      <div class="image-grid three">
-        <figure><img src="assets/single/cathedral_colorized.jpg" alt="Colorized Cathedral"><figcaption><strong>Cathedral</strong><br>G→B (2, 5) · R→B (3, 12)</figcaption></figure>
-        <figure><img src="assets/single/monastery_colorized.jpg" alt="Colorized Monastery"><figcaption><strong>Monastery</strong><br>G→B (2, -3) · R→B (2, 3)</figcaption></figure>
-        <figure><img src="assets/single/tobolsk_colorized.jpg" alt="Colorized Tobolsk"><figcaption><strong>Tobolsk</strong><br>G→B (3, 3) · R→B (3, 6)</figcaption></figure>
+      <div class="channel-visual" role="img" aria-label="Three aligned blue, green, and red exposures combine into one RGB result">
+        <div class="plates"><span class="plate blue">B</span><span class="plate green">G</span><span class="plate red">R</span></div>
+        <span class="arrow">→</span>
+        <div class="rgb-plate"><span>RGB</span><small>aligned result</small></div>
       </div>
     </section>
 
-    <section id="pyramid">
-      <p class="label">Multi-scale results</p><h2>All supplied TIFF examples</h2><p>The same pyramid parameters were used for every supplied image. The gallery shows final colorized results; the table records every computed offset.</p>
-      <div class="image-grid">
-        <figure><img src="assets/pyramid/supplied/cathedral_colorized.jpg" alt="Colorized Cathedral"><figcaption>Cathedral</figcaption></figure>
-        <figure><img src="assets/pyramid/supplied/church_colorized.jpg" alt="Colorized Church"><figcaption>Church</figcaption></figure>
-        <figure class="failure"><img src="assets/pyramid/supplied/emir_colorized.jpg" alt="Misaligned colorization of Emir of Bukhara"><figcaption>Emir of Bukhara <span>— red-channel failure</span></figcaption></figure>
-        <figure><img src="assets/pyramid/supplied/harvesters_colorized.jpg" alt="Colorized Harvesters"><figcaption>Harvesters</figcaption></figure>
-        <figure><img src="assets/pyramid/supplied/icon_colorized.jpg" alt="Colorized Icon"><figcaption>Icon</figcaption></figure>
-        <figure><img src="assets/pyramid/supplied/ilemselga_colorized.jpg" alt="Colorized Ilemselga"><figcaption>Ilemselga</figcaption></figure>
-        <figure><img src="assets/pyramid/supplied/melons_colorized.jpg" alt="Colorized Melons"><figcaption>Melons</figcaption></figure>
-        <figure><img src="assets/pyramid/supplied/monastery_colorized.jpg" alt="Colorized Monastery"><figcaption>Monastery</figcaption></figure>
-        <figure><img src="assets/pyramid/supplied/religous_painting_colorized.jpg" alt="Colorized Religious Painting"><figcaption>Religious Painting</figcaption></figure>
-        <figure><img src="assets/pyramid/supplied/self_portrait_colorized.jpg" alt="Colorized Self Portrait"><figcaption>Self Portrait</figcaption></figure>
-        <figure><img src="assets/pyramid/supplied/siren_colorized.jpg" alt="Colorized Siren"><figcaption>Siren</figcaption></figure>
-        <figure><img src="assets/pyramid/supplied/three_generations_colorized.jpg" alt="Colorized Three Generations"><figcaption>Three Generations</figcaption></figure>
-        <figure><img src="assets/pyramid/supplied/tobolsk_colorized.jpg" alt="Colorized Tobolsk"><figcaption>Tobolsk</figcaption></figure>
-        <figure><img src="assets/pyramid/supplied/wharf_colorized.jpg" alt="Colorized Wharf"><figcaption>Wharf</figcaption></figure>
-      </div>
-      <div class="table-wrap"><table><thead><tr><th>Image</th><th>G→B</th><th>R→B</th><th>Result</th></tr></thead><tbody>
-        <tr><td>Cathedral</td><td>(2, 5)</td><td>(3, 12)</td><td>Aligned</td></tr><tr><td>Church</td><td>(4, 25)</td><td>(-4, 58)</td><td>Aligned</td></tr><tr><td>Emir of Bukhara</td><td>(24, 49)</td><td>(-205, 141)</td><td>Red channel failed</td></tr><tr><td>Harvesters</td><td>(17, 60)</td><td>(13, 124)</td><td>Aligned</td></tr><tr><td>Icon</td><td>(17, 41)</td><td>(23, 89)</td><td>Aligned</td></tr><tr><td>Ilemselga</td><td>(7, 40)</td><td>(11, 130)</td><td>Aligned</td></tr><tr><td>Melons</td><td>(11, 82)</td><td>(13, 178)</td><td>Aligned</td></tr><tr><td>Monastery</td><td>(2, -3)</td><td>(2, 3)</td><td>Aligned</td></tr><tr><td>Religious Painting</td><td>(3, 28)</td><td>(7, 68)</td><td>Aligned</td></tr><tr><td>Self Portrait</td><td>(29, 79)</td><td>(37, 176)</td><td>Aligned</td></tr><tr><td>Siren</td><td>(-6, 49)</td><td>(-25, 96)</td><td>Aligned</td></tr><tr><td>Three Generations</td><td>(14, 53)</td><td>(11, 112)</td><td>Aligned</td></tr><tr><td>Tobolsk</td><td>(3, 3)</td><td>(3, 6)</td><td>Aligned</td></tr><tr><td>Wharf</td><td>(-7, 15)</td><td>(-16, 83)</td><td>Aligned</td></tr>
-      </tbody></table></div>
-    </section>
+    <div class="wrap report">
+      <section id="method">
+        <div class="section-heading"><p class="eyebrow">01 · Approach</p><h2>Align first, colorize second.</h2></div>
+        <div class="method-grid">
+          <div>
+            <p>Each plate stores three monochrome exposures stacked vertically in <strong>blue, green, red</strong> order. I split the plate, keep blue fixed, and translate green and red until their similarity to blue is maximal. The shifted channels are then stacked into the final RGB image.</p>
+            <div class="formula"><span>NCC(A, B)</span><strong>=</strong><span>Σ(A − Ā)(B − B̄) / √[Σ(A − Ā)² Σ(B − B̄)²]</span></div>
+            <p class="small">NCC is computed on raw exposure pixel values over the overlapping interior. Higher scores indicate a better match.</p>
+          </div>
+          <aside class="settings-card">
+            <p class="card-label">Fixed settings</p>
+            <dl><div><dt>Single-scale search</dt><dd>±15 px</dd></div><div><dt>Pyramid scale</dt><dd>0.5</dd></div><div><dt>Coarse / refine radius</dt><dd>15 px / 2 px</dd></div><div><dt>Scoring crop</dt><dd>10% border</dd></div><div><dt>Minimum size</dt><dd>200 px</dd></div></dl>
+          </aside>
+        </div>
+        <div class="pyramid-steps" aria-label="Pyramid alignment process"><div><b>1</b><span>Downsample the exposures.</span></div><div><b>2</b><span>Estimate a large shift at low resolution.</span></div><div><b>3</b><span>Scale and refine it at each level.</span></div></div>
+        <p class="offset-note"><strong>Offset convention:</strong> <code>(x, y)</code> is the displacement applied to the named channel. Positive <code>x</code> moves right; positive <code>y</code> moves down.</p>
+      </section>
 
-    <section id="external">
-      <p class="label">Additional collection examples</p><h2>Three images beyond the supplied set</h2><p>These plates were downloaded from the <a href="https://www.loc.gov/collections/prokudin-gorskii/">Library of Congress Prokudin-Gorskii collection</a> and run through the same fixed pipeline without per-image tuning.</p>
-      <div class="image-grid three">
-        <figure><img src="assets/pyramid/external/Lodeinoe_colorized.jpg" alt="Colorized Lodeinoe"><figcaption><strong>Lodeinoe</strong><br>G→B (11, 26) · R→B (16, 63)</figcaption></figure>
-        <figure><img src="assets/pyramid/external/Ostrechiny_colorized.jpg" alt="Colorized Ostrechiny"><figcaption><strong>Ostrechiny</strong><br>G→B (-6, 13) · R→B (-12, 133)</figcaption></figure>
-        <figure><img src="assets/pyramid/external/Village_colorized.jpg" alt="Colorized Village"><figcaption><strong>Village</strong><br>G→B (14, 49) · R→B (20, 113)</figcaption></figure>
-      </div>
-    </section>
+      <section id="single">
+        <div class="section-heading"><p class="eyebrow">02 · Single-scale alignment</p><h2>Low-resolution JPEGs</h2><p>Exhaustive NCC search in a ±15-pixel window cleanly aligns each small example.</p></div>
+        <div class="result-grid three">
+          <figure><img src="assets/single/cathedral_colorized.jpg" alt="Colorized Cathedral"><figcaption><strong>Cathedral</strong><span>G→B (2, 5) · R→B (3, 12)</span><em>NCC · single scale</em></figcaption></figure>
+          <figure><img src="assets/single/monastery_colorized.jpg" alt="Colorized Monastery"><figcaption><strong>Monastery</strong><span>G→B (2, -3) · R→B (2, 3)</span><em>NCC · single scale</em></figcaption></figure>
+          <figure><img src="assets/single/tobolsk_colorized.jpg" alt="Colorized Tobolsk"><figcaption><strong>Tobolsk</strong><span>G→B (3, 3) · R→B (3, 6)</span><em>NCC · single scale</em></figcaption></figure>
+        </div>
+      </section>
 
-    <section class="callout" id="failure">
-      <p class="label">Failure and extras</p><h2>What did not work</h2>
-      <p><strong>Emir of Bukhara</strong> is the one clear failure. Green aligns at <code>(24, 49)</code>, but raw-pixel NCC selects an incorrect red displacement of <code>(-205, 141)</code>. Its red and blue exposures have substantially different brightness patterns, so intensity correlation chooses a false match. Aligning edges or gradients would be a sensible improvement, but this page reports the required raw-pixel NCC result.</p>
-      <p><strong>Bells and whistles:</strong> border cropping during scoring and a coarse-to-fine pyramid. Together, they keep the method simple while making large-displacement TIFF alignment practical and more stable.</p>
-    </section>
+      <section id="pyramid">
+        <div class="section-heading"><p class="eyebrow">03 · Multi-scale alignment</p><h2>All supplied images</h2><p>For full-resolution TIFFs, the pyramid carries a coarse estimate upward through small local searches. One fixed configuration was used throughout.</p></div>
+        <div class="result-grid">
+          <figure><img src="assets/pyramid/supplied/cathedral_colorized.jpg" alt="Colorized Cathedral"><figcaption><strong>Cathedral</strong><span>G (2, 5) · R (3, 12)</span></figcaption></figure>
+          <figure><img src="assets/pyramid/supplied/church_colorized.jpg" alt="Colorized Church"><figcaption><strong>Church</strong><span>G (4, 25) · R (-4, 58)</span></figcaption></figure>
+          <figure class="failure-frame"><img src="assets/pyramid/supplied/emir_colorized.jpg" alt="Misaligned colorization of Emir of Bukhara"><figcaption><strong>Emir of Bukhara</strong><span>G (24, 49) · R (-205, 141)</span><em>Red-channel failure</em></figcaption></figure>
+          <figure><img src="assets/pyramid/supplied/harvesters_colorized.jpg" alt="Colorized Harvesters"><figcaption><strong>Harvesters</strong><span>G (17, 60) · R (13, 124)</span></figcaption></figure>
+          <figure><img src="assets/pyramid/supplied/icon_colorized.jpg" alt="Colorized Icon"><figcaption><strong>Icon</strong><span>G (17, 41) · R (23, 89)</span></figcaption></figure>
+          <figure><img src="assets/pyramid/supplied/ilemselga_colorized.jpg" alt="Colorized Ilemselga"><figcaption><strong>Ilemselga</strong><span>G (7, 40) · R (11, 130)</span></figcaption></figure>
+          <figure><img src="assets/pyramid/supplied/melons_colorized.jpg" alt="Colorized Melons"><figcaption><strong>Melons</strong><span>G (11, 82) · R (13, 178)</span></figcaption></figure>
+          <figure><img src="assets/pyramid/supplied/monastery_colorized.jpg" alt="Colorized Monastery"><figcaption><strong>Monastery</strong><span>G (2, -3) · R (2, 3)</span></figcaption></figure>
+          <figure><img src="assets/pyramid/supplied/religous_painting_colorized.jpg" alt="Colorized Religious Painting"><figcaption><strong>Religious Painting</strong><span>G (3, 28) · R (7, 68)</span></figcaption></figure>
+          <figure><img src="assets/pyramid/supplied/self_portrait_colorized.jpg" alt="Colorized Self Portrait"><figcaption><strong>Self Portrait</strong><span>G (29, 79) · R (37, 176)</span></figcaption></figure>
+          <figure><img src="assets/pyramid/supplied/siren_colorized.jpg" alt="Colorized Siren"><figcaption><strong>Siren</strong><span>G (-6, 49) · R (-25, 96)</span></figcaption></figure>
+          <figure><img src="assets/pyramid/supplied/three_generations_colorized.jpg" alt="Colorized Three Generations"><figcaption><strong>Three Generations</strong><span>G (14, 53) · R (11, 112)</span></figcaption></figure>
+          <figure><img src="assets/pyramid/supplied/tobolsk_colorized.jpg" alt="Colorized Tobolsk"><figcaption><strong>Tobolsk</strong><span>G (3, 3) · R (3, 6)</span></figcaption></figure>
+          <figure><img src="assets/pyramid/supplied/wharf_colorized.jpg" alt="Colorized Wharf"><figcaption><strong>Wharf</strong><span>G (-7, 15) · R (-16, 83)</span></figcaption></figure>
+        </div>
+        <details open class="offset-table"><summary>Complete offset and runtime record <span>14 supplied images</span></summary><div class="table-wrap"><table><thead><tr><th>Image</th><th>G→B</th><th>R→B</th><th>Runtime</th><th>Result</th></tr></thead><tbody>
+          <tr><td>Cathedral</td><td>(2, 5)</td><td>(3, 12)</td><td>0.26 s</td><td>Aligned</td></tr><tr><td>Church</td><td>(4, 25)</td><td>(-4, 58)</td><td>3.06 s</td><td>Aligned</td></tr><tr><td>Emir of Bukhara</td><td>(24, 49)</td><td>(-205, 141)</td><td>3.07 s</td><td>Red channel failed</td></tr><tr><td>Harvesters</td><td>(17, 60)</td><td>(13, 124)</td><td>2.83 s</td><td>Aligned</td></tr><tr><td>Icon</td><td>(17, 41)</td><td>(23, 89)</td><td>3.50 s</td><td>Aligned</td></tr><tr><td>Ilemselga</td><td>(7, 40)</td><td>(11, 130)</td><td>3.43 s</td><td>Aligned</td></tr><tr><td>Melons</td><td>(11, 82)</td><td>(13, 178)</td><td>3.10 s</td><td>Aligned</td></tr><tr><td>Monastery</td><td>(2, -3)</td><td>(2, 3)</td><td>0.18 s</td><td>Aligned</td></tr><tr><td>Religious Painting</td><td>(3, 28)</td><td>(7, 68)</td><td>3.36 s</td><td>Aligned</td></tr><tr><td>Self Portrait</td><td>(29, 79)</td><td>(37, 176)</td><td>3.17 s</td><td>Aligned</td></tr><tr><td>Siren</td><td>(-6, 49)</td><td>(-25, 96)</td><td>3.07 s</td><td>Aligned</td></tr><tr><td>Three Generations</td><td>(14, 53)</td><td>(11, 112)</td><td>3.08 s</td><td>Aligned</td></tr><tr><td>Tobolsk</td><td>(3, 3)</td><td>(3, 6)</td><td>0.20 s</td><td>Aligned</td></tr><tr><td>Wharf</td><td>(-7, 15)</td><td>(-16, 83)</td><td>3.00 s</td><td>Aligned</td></tr>
+        </tbody></table></div></details>
+      </section>
+
+      <section id="external">
+        <div class="section-heading"><p class="eyebrow">04 · Beyond the supplied set</p><h2>Three more collection plates</h2><p>These images came from the <a href="https://www.loc.gov/collections/prokudin-gorskii/">Library of Congress Prokudin-Gorskii collection</a> and used the exact same pipeline, with no per-image tuning.</p></div>
+        <div class="result-grid three">
+          <figure><img src="assets/pyramid/external/Lodeinoe_colorized.jpg" alt="Colorized Lodeinoe"><figcaption><strong>Lodeinoe</strong><span>G→B (11, 26) · R→B (16, 63)</span><em>3.11 s</em></figcaption></figure>
+          <figure><img src="assets/pyramid/external/Ostrechiny_colorized.jpg" alt="Colorized Ostrechiny"><figcaption><strong>Ostrechiny</strong><span>G→B (-6, 13) · R→B (-12, 133)</span><em>3.03 s</em></figcaption></figure>
+          <figure><img src="assets/pyramid/external/Village_colorized.jpg" alt="Colorized Village"><figcaption><strong>Village</strong><span>G→B (14, 49) · R→B (20, 113)</span><em>3.34 s</em></figcaption></figure>
+        </div>
+      </section>
+
+      <section class="notes" id="failure">
+        <div class="section-heading"><p class="eyebrow">05 · Failure analysis & extras</p><h2>Where raw-pixel NCC breaks.</h2></div>
+        <div class="notes-grid"><div><h3>Emir of Bukhara</h3><p>Green aligns at <code>(24, 49)</code>, but red lands at an implausible <code>(-205, 141)</code>. The red and blue exposures have substantially different brightness patterns, so raw-pixel NCC finds a false correlation rather than geometric alignment. Edge or gradient alignment would be a useful next experiment.</p></div><div><h3>Bells & whistles</h3><p>Two implementation details improve the baseline: I exclude the outer 10% from scoring to avoid plate borders, and use a coarse-to-fine pyramid to make large-displacement TIFF alignment practical. The final channel shifts still use the required NCC pipeline.</p></div></div>
+      </section>
+    </div>
   </main>
   <footer><div class="wrap">CS180 Project 1 · <a href="https://cal-cs180.github.io/fa26/hw/proj1/index.html">Project specification</a> · <a href="#top">Back to top</a></div></footer>
 </body>
