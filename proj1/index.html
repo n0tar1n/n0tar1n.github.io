@@ -12,12 +12,11 @@
     <nav class="nav wrap" aria-label="Project navigation">
       <a class="course" href="../index.html">CS180</a>
       <div class="nav-links">
-        <a href="#method">Method</a>
-        <a href="#single">Single scale</a>
-        <a href="#pyramid">Pyramid</a>
-        <a href="#external">Extra images</a>
-        <a href="#failure">Failure</a>
-        <a href="#bells-whistles">Bells &amp; Whistles</a>
+        <a href="#input-goal">Part 1</a>
+        <a href="#method">Part 2</a>
+        <a href="#external">Part 3</a>
+        <a href="#failure">Part 4</a>
+        <a href="#bells-whistles">Part 5</a>
       </div>
     </nav>
   </header>
@@ -54,8 +53,8 @@
 
       <section id="input-goal">
         <div class="section-heading">
-          <p class="eyebrow">01 · Input and goal</p>
-          <h2>From one glass plate to RGB.</h2>
+          <p class="eyebrow">Part 1 · Single-scale alignment</p>
+          <h2>Single-scale alignment.</h2>
         </div>
 
         <div class="input-goal-grid">
@@ -85,88 +84,11 @@
         </p>
       </section>
 
-      <section id="method">
-        <div class="section-heading">
-          <p class="eyebrow">02 · Approach</p>
-          <h2>Align first, colorize second.</h2>
-        </div>
-
-        <div class="method-grid">
-          <div>
-            <p>Blue is fixed. I search for the green and red translations with the highest NCC score, then stack the shifted channels as RGB.</p>
-
-            <div class="formula">
-              <span>NCC(A, B)</span>
-              <strong>=</strong>
-              <span>Σ(A − Ā)(B − B̄) / √[Σ(A − Ā)² Σ(B − B̄)²]</span>
-            </div>
-
-            <p class="small">NCC is computed on the shared interior; higher is better.</p>
-          </div>
-
-          <aside class="settings-card">
-            <p class="card-label">Fixed settings</p>
-            <dl>
-              <div><dt>Single-scale search</dt><dd>±15 px</dd></div>
-              <div><dt>Pyramid scale</dt><dd>0.5</dd></div>
-              <div><dt>Coarse / refine radius</dt><dd>15 px / 2 px</dd></div>
-              <div><dt>Scoring crop</dt><dd>10% border</dd></div>
-              <div><dt>Minimum size</dt><dd>200 px</dd></div>
-            </dl>
-          </aside>
-        </div>
-
-        <div class="pyramid-story">
-          <div class="pyramid-visual"
-               role="img"
-               aria-label="An image pyramid with small, medium, and full-resolution levels; alignment starts at the smallest level and refines upward">
-            <div class="pyramid-level small-level"><span>1/4</span></div>
-            <span class="pyramid-arrow">↗</span>
-            <div class="pyramid-level medium-level"><span>1/2</span></div>
-            <span class="pyramid-arrow">↗</span>
-            <div class="pyramid-level full-level"><span>full</span></div>
-          </div>
-
-          <div>
-            <p class="card-label">Why a pyramid?</p>
-            <p>
-              Searching a large displacement range directly at full resolution is expensive.
-              Instead, I estimate a rough displacement at the smallest level and propagate it
-              upward, refining only a small neighborhood at every finer resolution.
-            </p>
-          </div>
-        </div>
-
-        <div class="border-story">
-          <div class="border-visual"
-               role="img"
-               aria-label="A grayscale plate channel with its outer ten percent marked as ignored and its central interior marked as the matching-score region">
-            <div class="score-region"><span>pixels used for NCC</span></div>
-            <span class="border-label">10% border ignored</span>
-          </div>
-
-          <div>
-            <p class="card-label">Why ignore the border?</p>
-            <p>
-              The scanned plates contain strong black and white borders. These borders can
-              dominate NCC and produce a false optimum. I therefore ignore the outer 10%
-              of the image during pyramid scoring. This does not crop the final image; it
-              only changes which pixels contribute to the matching score.
-            </p>
-          </div>
-        </div>
-
-        <p class="offset-note">
-          <strong>Offset convention:</strong> <code>(x, y)</code> is the displacement applied
-          to the named channel. Positive <code>x</code> moves right; positive <code>y</code> moves down.
-        </p>
-      </section>
-
       <section id="single">
         <div class="section-heading">
-          <p class="eyebrow">03 · Single-scale alignment</p>
+          <p class="eyebrow">Part 1 · Results</p>
           <h2>Low-resolution JPEGs</h2>
-          <p>Exhaustive NCC search in a ±15-pixel window cleanly aligns each small example.</p>
+          <p>For each channel, I test every integer shift in <code>[-15, 15]</code> and keep the highest NCC score.</p>
         </div>
 
         <div class="result-grid three">
@@ -199,9 +121,41 @@
         </div>
       </section>
 
+      <section id="method">
+        <div class="section-heading">
+          <p class="eyebrow">Part 2 · Multi-scale alignment</p>
+          <h2>Coarse-to-fine pyramid search.</h2>
+          <p>Large TIFF offsets are estimated at low resolution, then scaled and refined at each higher-resolution level.</p>
+        </div>
+
+        <div class="method-grid">
+          <div>
+            <p>Blue remains the reference. NCC scores the shared interior of each candidate translation; higher scores indicate a better match.</p>
+            <div class="formula"><span>NCC(A, B)</span><strong>=</strong><span>Σ(A − Ā)(B − B̄) / √[Σ(A − Ā)² Σ(B − B̄)²]</span></div>
+            <p class="small">At the smallest level, I search a broad window. At each larger level, I only refine around the scaled estimate.</p>
+          </div>
+          <aside class="settings-card">
+            <p class="card-label">Fixed settings</p>
+            <dl><div><dt>Single-scale search</dt><dd>±15 px</dd></div><div><dt>Pyramid scale</dt><dd>0.5</dd></div><div><dt>Coarse / refine radius</dt><dd>15 px / 2 px</dd></div><div><dt>Scoring crop</dt><dd>10% border</dd></div><div><dt>Minimum size</dt><dd>200 px</dd></div></dl>
+          </aside>
+        </div>
+
+        <div class="pyramid-story">
+          <div class="pyramid-visual" role="img" aria-label="An image pyramid with small, medium, and full-resolution levels; alignment starts at the smallest level and refines upward"><div class="pyramid-level small-level"><span>1/4</span></div><span class="pyramid-arrow">↗</span><div class="pyramid-level medium-level"><span>1/2</span></div><span class="pyramid-arrow">↗</span><div class="pyramid-level full-level"><span>full</span></div></div>
+          <div><p class="card-label">Why a pyramid?</p><p>Searching a large displacement range directly at full resolution is expensive. I estimate a rough shift at the smallest level, then refine only a small neighborhood at each finer level.</p></div>
+        </div>
+
+        <div class="border-story">
+          <div class="border-visual" role="img" aria-label="A grayscale plate channel with its outer ten percent marked as ignored and its central interior marked as the matching-score region"><div class="score-region"><span>pixels used for NCC</span></div><span class="border-label">10% border ignored</span></div>
+          <div><p class="card-label">Border crop</p><p>Strong black and white plate borders can dominate NCC. I ignore the outer 10% while scoring; the final image is not cropped by this step.</p></div>
+        </div>
+
+        <p class="offset-note"><strong>Offset convention:</strong> <code>(x, y)</code> is the displacement applied to the named channel. Positive <code>x</code> moves right; positive <code>y</code> moves down.</p>
+      </section>
+
       <section id="pyramid">
         <div class="section-heading">
-          <p class="eyebrow">04 · Multi-scale alignment</p>
+          <p class="eyebrow">Part 2 · Results</p>
           <h2>All supplied images</h2>
           <p>For full-resolution TIFFs, a coarse estimate is refined with small local searches. The same configuration was used throughout.</p>
         </div>
@@ -262,7 +216,7 @@
 
       <section id="external">
         <div class="section-heading">
-          <p class="eyebrow">05 · Beyond the supplied set</p>
+          <p class="eyebrow">Part 3 · Additional examples</p>
           <h2>Three more collection plates</h2>
           <p>Three plates from the <a href="https://www.loc.gov/collections/prokudin-gorskii/">Library of Congress collection</a>, using the same settings and no per-image tuning.</p>
         </div>
@@ -276,7 +230,7 @@
 
       <section class="notes" id="failure">
         <div class="section-heading">
-          <p class="eyebrow">06 · Failure analysis</p>
+          <p class="eyebrow">Part 4 · Failure analysis</p>
           <h2>Baseline failure: Emir of Bukhara.</h2>
         </div>
 
@@ -292,7 +246,7 @@
 
       <section id="bells-whistles">
         <div class="section-heading">
-          <p class="eyebrow">07 · Bells &amp; Whistles</p>
+          <p class="eyebrow">Part 5 · Bells &amp; Whistles</p>
           <h2>Sobel-gradient matching.</h2>
           <p>Gradient magnitude compares edges instead of absolute brightness.</p>
         </div>
