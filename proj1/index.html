@@ -136,7 +136,6 @@
       <section id="pyramid" class="part-two-results">
         <div class="part-subheading">
           <p class="eyebrow">Part 2 · Results</p>
-          <h3>All supplied images</h3>
           <p>For full-resolution TIFFs, a coarse estimate is refined with small local searches. The same configuration was used throughout.</p>
         </div>
 
@@ -221,6 +220,11 @@
           </div>
 
           <div><h3>Fix</h3><p>I kept the search and pyramid unchanged, but scored Sobel-gradient magnitude instead of raw intensity.</p></div>
+        </div>
+
+        <div class="limitations">
+          <h3>Limitations</h3>
+          <p>The method assumes that misalignment is a single 2D translation. It cannot fully correct scene motion between exposures, such as moving people or water, or geometric differences from rotation and scale changes. Gradient features improve robustness to cross-channel brightness differences, but they do not change this translation-only model.</p>
         </div>
       </section>
 
