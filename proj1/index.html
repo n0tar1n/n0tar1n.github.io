@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="CS180 Project 1: colorizing Prokudin-Gorskii photographs with NCC alignment and an image pyramid.">
+  <meta name="description" content="CS180 Project 1: colorizing Prokudin-Gorskii photographs with NCC alignment, an image pyramid, and Sobel-gradient feature matching.">
   <title>CS180 Project 1 — Images of the Russian Empire</title>
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -11,7 +11,14 @@
   <header class="site-header" id="top">
     <nav class="nav wrap" aria-label="Project navigation">
       <a class="course" href="../index.html">CS180</a>
-      <div class="nav-links"><a href="#method">Method</a><a href="#single">Single scale</a><a href="#pyramid">Pyramid</a><a href="#external">Extra images</a><a href="#failure">Notes</a></div>
+      <div class="nav-links">
+        <a href="#method">Method</a>
+        <a href="#single">Single scale</a>
+        <a href="#pyramid">Pyramid</a>
+        <a href="#external">Extra images</a>
+        <a href="#failure">Failure</a>
+        <a href="#bells-whistles">Bells &amp; Whistles</a>
+      </div>
     </nav>
   </header>
 
@@ -20,68 +27,204 @@
       <div class="hero-copy">
         <p class="eyebrow">Project 01 · Fall 2026</p>
         <h1>Images of the<br>Russian Empire</h1>
-        <p class="lede">Reconstructing color from Prokudin-Gorskii glass plates by aligning red and green exposures to blue with normalized cross-correlation.</p>
+        <p class="lede">
+          Reconstructing color from Prokudin-Gorskii glass plates by aligning red and green
+          exposures to blue with normalized cross-correlation, then improving a difficult
+          case with Sobel-gradient features.
+        </p>
         <dl class="quick-facts">
-          <div><dt>Metric</dt><dd>NCC</dd></div><div><dt>Reference</dt><dd>Blue</dd></div><div><dt>Images</dt><dd>17</dd></div><div><dt>Clear failures</dt><dd>1</dd></div>
+          <div><dt>Metric</dt><dd>NCC</dd></div>
+          <div><dt>Reference</dt><dd>Blue</dd></div>
+          <div><dt>Images</dt><dd>17</dd></div>
+          <div><dt>Extra</dt><dd>Sobel edges</dd></div>
         </dl>
       </div>
+
       <div class="channel-visual" role="img" aria-label="Three aligned blue, green, and red exposures combine into one RGB result">
-        <div class="plates"><span class="plate blue">B</span><span class="plate green">G</span><span class="plate red">R</span></div>
+        <div class="plates">
+          <span class="plate blue">B</span>
+          <span class="plate green">G</span>
+          <span class="plate red">R</span>
+        </div>
         <span class="arrow">→</span>
-        <div class="rgb-plate"><span>RGB</span><small>aligned result</small></div>
+        <div class="rgb-plate">
+          <span>RGB</span>
+          <small>aligned result</small>
+        </div>
       </div>
     </section>
 
     <div class="wrap report">
+
       <section id="input-goal">
-        <div class="section-heading"><p class="eyebrow">01 · Input and goal</p><h2>From one glass plate to RGB.</h2></div>
-        <div class="input-goal-grid">
-          <figure class="stacked-input"><img src="assets/input/cathedral_stacked.jpg" alt="Original Cathedral glass plate with blue, green, and red monochrome exposures stacked vertically"><figcaption><strong>Original input plate</strong><span>Cathedral · top to bottom: B, G, R</span></figcaption></figure>
-          <span class="process-arrow" aria-hidden="true">→</span>
-          <div class="channel-breakdown" aria-label="The three separate blue, green, and red channel images extracted from the stacked Cathedral plate"><div class="channel-crop blue-crop"><span>Blue</span></div><div class="channel-crop green-crop"><span>Green</span></div><div class="channel-crop red-crop"><span>Red</span></div></div>
+        <div class="section-heading">
+          <p class="eyebrow">01 · Input and goal</p>
+          <h2>From one glass plate to RGB.</h2>
         </div>
-        <p class="input-explanation">Each glass plate stores three monochrome exposures vertically in B, G, R order. I split the plate into three equal sections, use the blue channel as the reference, align green and red to blue, and stack the aligned channels as RGB.</p>
+
+        <div class="input-goal-grid">
+          <figure class="stacked-input">
+            <img src="assets/input/cathedral_stacked.jpg"
+                 alt="Original Cathedral glass plate with blue, green, and red monochrome exposures stacked vertically">
+            <figcaption>
+              <strong>Original input plate</strong>
+              <span>Cathedral · top to bottom: B, G, R</span>
+            </figcaption>
+          </figure>
+
+          <span class="process-arrow" aria-hidden="true">→</span>
+
+          <div class="channel-breakdown"
+               aria-label="The three separate blue, green, and red channel images extracted from the stacked Cathedral plate">
+            <div class="channel-crop blue-crop"><span>Blue</span></div>
+            <div class="channel-crop green-crop"><span>Green</span></div>
+            <div class="channel-crop red-crop"><span>Red</span></div>
+          </div>
+        </div>
+
+        <p class="input-explanation">
+          Each glass plate stores three monochrome exposures vertically in B, G, R order.
+          I split the plate into three equal sections, use the blue channel as the reference,
+          align green and red to blue, and stack the aligned channels as RGB.
+        </p>
       </section>
 
       <section id="method">
-        <div class="section-heading"><p class="eyebrow">02 · Approach</p><h2>Align first, colorize second.</h2></div>
+        <div class="section-heading">
+          <p class="eyebrow">02 · Approach</p>
+          <h2>Align first, colorize second.</h2>
+        </div>
+
         <div class="method-grid">
           <div>
-            <p>Each plate stores three monochrome exposures stacked vertically in <strong>blue, green, red</strong> order. I split the plate, keep blue fixed, and translate green and red until their similarity to blue is maximal. The shifted channels are then stacked into the final RGB image.</p>
-            <div class="formula"><span>NCC(A, B)</span><strong>=</strong><span>Σ(A − Ā)(B − B̄) / √[Σ(A − Ā)² Σ(B − B̄)²]</span></div>
-            <p class="small">NCC is computed on raw exposure pixel values over the overlapping interior. Higher scores indicate a better match.</p>
+            <p>
+              Each plate stores three monochrome exposures stacked vertically in
+              <strong>blue, green, red</strong> order. I split the plate, keep blue fixed,
+              and translate green and red until their similarity to blue is maximal.
+              The shifted channels are then stacked into the final RGB image.
+            </p>
+
+            <div class="formula">
+              <span>NCC(A, B)</span>
+              <strong>=</strong>
+              <span>Σ(A − Ā)(B − B̄) / √[Σ(A − Ā)² Σ(B − B̄)²]</span>
+            </div>
+
+            <p class="small">
+              NCC is computed on exposure values over a shared overlapping interior.
+              Higher scores indicate a better match.
+            </p>
           </div>
+
           <aside class="settings-card">
             <p class="card-label">Fixed settings</p>
-            <dl><div><dt>Single-scale search</dt><dd>±15 px</dd></div><div><dt>Pyramid scale</dt><dd>0.5</dd></div><div><dt>Coarse / refine radius</dt><dd>15 px / 2 px</dd></div><div><dt>Scoring crop</dt><dd>10% border</dd></div><div><dt>Minimum size</dt><dd>200 px</dd></div></dl>
+            <dl>
+              <div><dt>Single-scale search</dt><dd>±15 px</dd></div>
+              <div><dt>Pyramid scale</dt><dd>0.5</dd></div>
+              <div><dt>Coarse / refine radius</dt><dd>15 px / 2 px</dd></div>
+              <div><dt>Scoring crop</dt><dd>10% border</dd></div>
+              <div><dt>Minimum size</dt><dd>200 px</dd></div>
+            </dl>
           </aside>
         </div>
+
         <div class="pyramid-story">
-          <div class="pyramid-visual" role="img" aria-label="An image pyramid with small, medium, and full-resolution levels; alignment starts at the smallest level and refines upward"><div class="pyramid-level small-level"><span>1/4</span></div><span class="pyramid-arrow">↗</span><div class="pyramid-level medium-level"><span>1/2</span></div><span class="pyramid-arrow">↗</span><div class="pyramid-level full-level"><span>full</span></div></div>
-          <div><p class="card-label">Why a pyramid?</p><p>Searching a large displacement range directly at full resolution is expensive. Instead, I estimate a rough displacement at the smallest level and propagate it upward, refining only a small neighborhood at every finer resolution.</p></div>
+          <div class="pyramid-visual"
+               role="img"
+               aria-label="An image pyramid with small, medium, and full-resolution levels; alignment starts at the smallest level and refines upward">
+            <div class="pyramid-level small-level"><span>1/4</span></div>
+            <span class="pyramid-arrow">↗</span>
+            <div class="pyramid-level medium-level"><span>1/2</span></div>
+            <span class="pyramid-arrow">↗</span>
+            <div class="pyramid-level full-level"><span>full</span></div>
+          </div>
+
+          <div>
+            <p class="card-label">Why a pyramid?</p>
+            <p>
+              Searching a large displacement range directly at full resolution is expensive.
+              Instead, I estimate a rough displacement at the smallest level and propagate it
+              upward, refining only a small neighborhood at every finer resolution.
+            </p>
+          </div>
         </div>
+
         <div class="border-story">
-          <div class="border-visual" role="img" aria-label="A grayscale plate channel with its outer ten percent marked as ignored and its central interior marked as the matching-score region"><div class="score-region"><span>pixels used for NCC</span></div><span class="border-label">10% border ignored</span></div>
-          <div><p class="card-label">Why ignore the border?</p><p>The scanned plates contain strong black and white borders. These borders can dominate NCC and produce a false optimum. I therefore ignore the outer 10% of the image during pyramid scoring. This does not crop the final image; it only changes which pixels contribute to the matching score.</p></div>
+          <div class="border-visual"
+               role="img"
+               aria-label="A grayscale plate channel with its outer ten percent marked as ignored and its central interior marked as the matching-score region">
+            <div class="score-region"><span>pixels used for NCC</span></div>
+            <span class="border-label">10% border ignored</span>
+          </div>
+
+          <div>
+            <p class="card-label">Why ignore the border?</p>
+            <p>
+              The scanned plates contain strong black and white borders. These borders can
+              dominate NCC and produce a false optimum. I therefore ignore the outer 10%
+              of the image during pyramid scoring. This does not crop the final image; it
+              only changes which pixels contribute to the matching score.
+            </p>
+          </div>
         </div>
-        <p class="offset-note"><strong>Offset convention:</strong> <code>(x, y)</code> is the displacement applied to the named channel. Positive <code>x</code> moves right; positive <code>y</code> moves down.</p>
+
+        <p class="offset-note">
+          <strong>Offset convention:</strong> <code>(x, y)</code> is the displacement applied
+          to the named channel. Positive <code>x</code> moves right; positive <code>y</code> moves down.
+        </p>
       </section>
 
       <section id="single">
-        <div class="section-heading"><p class="eyebrow">03 · Single-scale alignment</p><h2>Low-resolution JPEGs</h2><p>Exhaustive NCC search in a ±15-pixel window cleanly aligns each small example.</p></div>
+        <div class="section-heading">
+          <p class="eyebrow">03 · Single-scale alignment</p>
+          <h2>Low-resolution JPEGs</h2>
+          <p>Exhaustive NCC search in a ±15-pixel window cleanly aligns each small example.</p>
+        </div>
+
         <div class="result-grid three">
-          <figure><img src="assets/single/cathedral_colorized.jpg" alt="Colorized Cathedral"><figcaption><strong>Cathedral</strong><span>G→B (2, 5) · R→B (3, 12)</span><em>NCC · single scale</em></figcaption></figure>
-          <figure><img src="assets/single/monastery_colorized.jpg" alt="Colorized Monastery"><figcaption><strong>Monastery</strong><span>G→B (2, -3) · R→B (2, 3)</span><em>NCC · single scale</em></figcaption></figure>
-          <figure><img src="assets/single/tobolsk_colorized.jpg" alt="Colorized Tobolsk"><figcaption><strong>Tobolsk</strong><span>G→B (3, 3) · R→B (3, 6)</span><em>NCC · single scale</em></figcaption></figure>
+          <figure>
+            <img src="assets/single/cathedral_colorized.jpg" alt="Colorized Cathedral">
+            <figcaption>
+              <strong>Cathedral</strong>
+              <span>G→B (2, 5) · R→B (3, 12)</span>
+              <em>NCC · single scale</em>
+            </figcaption>
+          </figure>
+
+          <figure>
+            <img src="assets/single/monastery_colorized.jpg" alt="Colorized Monastery">
+            <figcaption>
+              <strong>Monastery</strong>
+              <span>G→B (2, -3) · R→B (2, 3)</span>
+              <em>NCC · single scale</em>
+            </figcaption>
+          </figure>
+
+          <figure>
+            <img src="assets/single/tobolsk_colorized.jpg" alt="Colorized Tobolsk">
+            <figcaption>
+              <strong>Tobolsk</strong>
+              <span>G→B (3, 3) · R→B (3, 6)</span>
+              <em>NCC · single scale</em>
+            </figcaption>
+          </figure>
         </div>
       </section>
 
       <section id="pyramid">
-        <div class="section-heading"><p class="eyebrow">04 · Multi-scale alignment</p><h2>All supplied images</h2><p>For full-resolution TIFFs, the pyramid carries a coarse estimate upward through small local searches. One fixed configuration was used throughout.</p></div>
+        <div class="section-heading">
+          <p class="eyebrow">04 · Multi-scale alignment</p>
+          <h2>All supplied images</h2>
+          <p>
+            For full-resolution TIFFs, the pyramid carries a coarse estimate upward through
+            small local searches. One fixed configuration was used throughout.
+          </p>
+        </div>
+
         <div class="result-grid">
           <figure><img src="assets/pyramid/supplied/cathedral_colorized.jpg" alt="Colorized Cathedral"><figcaption><strong>Cathedral</strong><span>G (2, 5) · R (3, 12)</span></figcaption></figure>
           <figure><img src="assets/pyramid/supplied/church_colorized.jpg" alt="Colorized Church"><figcaption><strong>Church</strong><span>G (4, 25) · R (-4, 58)</span></figcaption></figure>
-          <figure class="failure-frame"><img src="assets/pyramid/supplied/emir_colorized.jpg" alt="Misaligned colorization of Emir of Bukhara"><figcaption><strong>Emir of Bukhara</strong><span>G (24, 49) · R (-205, 141)</span><em>Red-channel failure</em></figcaption></figure>
+          <figure class="failure-frame"><img src="assets/pyramid/supplied/emir_colorized.jpg" alt="Misaligned colorization of Emir of Bukhara"><figcaption><strong>Emir of Bukhara</strong><span>G (24, 49) · R (-205, 141)</span><em>Baseline red-channel failure</em></figcaption></figure>
           <figure><img src="assets/pyramid/supplied/harvesters_colorized.jpg" alt="Colorized Harvesters"><figcaption><strong>Harvesters</strong><span>G (17, 60) · R (13, 124)</span></figcaption></figure>
           <figure><img src="assets/pyramid/supplied/icon_colorized.jpg" alt="Colorized Icon"><figcaption><strong>Icon</strong><span>G (17, 41) · R (23, 89)</span></figcaption></figure>
           <figure><img src="assets/pyramid/supplied/ilemselga_colorized.jpg" alt="Colorized Ilemselga"><figcaption><strong>Ilemselga</strong><span>G (7, 40) · R (11, 130)</span></figcaption></figure>
@@ -94,13 +237,55 @@
           <figure><img src="assets/pyramid/supplied/tobolsk_colorized.jpg" alt="Colorized Tobolsk"><figcaption><strong>Tobolsk</strong><span>G (3, 3) · R (3, 6)</span></figcaption></figure>
           <figure><img src="assets/pyramid/supplied/wharf_colorized.jpg" alt="Colorized Wharf"><figcaption><strong>Wharf</strong><span>G (-7, 15) · R (-16, 83)</span></figcaption></figure>
         </div>
-        <details open class="offset-table"><summary>Complete offset and runtime record <span>14 supplied images</span></summary><div class="table-wrap"><table><thead><tr><th>Image</th><th>G→B</th><th>R→B</th><th>Runtime</th><th>Result</th></tr></thead><tbody>
-          <tr><td>Cathedral</td><td>(2, 5)</td><td>(3, 12)</td><td>0.26 s</td><td>Aligned</td></tr><tr><td>Church</td><td>(4, 25)</td><td>(-4, 58)</td><td>3.06 s</td><td>Aligned</td></tr><tr><td>Emir of Bukhara</td><td>(24, 49)</td><td>(-205, 141)</td><td>3.07 s</td><td>Red channel failed</td></tr><tr><td>Harvesters</td><td>(17, 60)</td><td>(13, 124)</td><td>2.83 s</td><td>Aligned</td></tr><tr><td>Icon</td><td>(17, 41)</td><td>(23, 89)</td><td>3.50 s</td><td>Aligned</td></tr><tr><td>Ilemselga</td><td>(7, 40)</td><td>(11, 130)</td><td>3.43 s</td><td>Aligned</td></tr><tr><td>Melons</td><td>(11, 82)</td><td>(13, 178)</td><td>3.10 s</td><td>Aligned</td></tr><tr><td>Monastery</td><td>(2, -3)</td><td>(2, 3)</td><td>0.18 s</td><td>Aligned</td></tr><tr><td>Religious Painting</td><td>(3, 28)</td><td>(7, 68)</td><td>3.36 s</td><td>Aligned</td></tr><tr><td>Self Portrait</td><td>(29, 79)</td><td>(37, 176)</td><td>3.17 s</td><td>Aligned</td></tr><tr><td>Siren</td><td>(-6, 49)</td><td>(-25, 96)</td><td>3.07 s</td><td>Aligned</td></tr><tr><td>Three Generations</td><td>(14, 53)</td><td>(11, 112)</td><td>3.08 s</td><td>Aligned</td></tr><tr><td>Tobolsk</td><td>(3, 3)</td><td>(3, 6)</td><td>0.20 s</td><td>Aligned</td></tr><tr><td>Wharf</td><td>(-7, 15)</td><td>(-16, 83)</td><td>3.00 s</td><td>Aligned</td></tr>
-        </tbody></table></div></details>
+
+        <details open class="offset-table">
+          <summary>
+            Complete offset and runtime record
+            <span>14 supplied images</span>
+          </summary>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Image</th>
+                  <th>G→B</th>
+                  <th>R→B</th>
+                  <th>Runtime</th>
+                  <th>Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Cathedral</td><td>(2, 5)</td><td>(3, 12)</td><td>0.26 s</td><td>Aligned</td></tr>
+                <tr><td>Church</td><td>(4, 25)</td><td>(-4, 58)</td><td>3.06 s</td><td>Aligned</td></tr>
+                <tr><td>Emir of Bukhara</td><td>(24, 49)</td><td>(-205, 141)</td><td>3.07 s</td><td>Red channel failed</td></tr>
+                <tr><td>Harvesters</td><td>(17, 60)</td><td>(13, 124)</td><td>2.83 s</td><td>Aligned</td></tr>
+                <tr><td>Icon</td><td>(17, 41)</td><td>(23, 89)</td><td>3.50 s</td><td>Aligned</td></tr>
+                <tr><td>Ilemselga</td><td>(7, 40)</td><td>(11, 130)</td><td>3.43 s</td><td>Aligned</td></tr>
+                <tr><td>Melons</td><td>(11, 82)</td><td>(13, 178)</td><td>3.10 s</td><td>Aligned</td></tr>
+                <tr><td>Monastery</td><td>(2, -3)</td><td>(2, 3)</td><td>0.18 s</td><td>Aligned</td></tr>
+                <tr><td>Religious Painting</td><td>(3, 28)</td><td>(7, 68)</td><td>3.36 s</td><td>Aligned</td></tr>
+                <tr><td>Self Portrait</td><td>(29, 79)</td><td>(37, 176)</td><td>3.17 s</td><td>Aligned</td></tr>
+                <tr><td>Siren</td><td>(-6, 49)</td><td>(-25, 96)</td><td>3.07 s</td><td>Aligned</td></tr>
+                <tr><td>Three Generations</td><td>(14, 53)</td><td>(11, 112)</td><td>3.08 s</td><td>Aligned</td></tr>
+                <tr><td>Tobolsk</td><td>(3, 3)</td><td>(3, 6)</td><td>0.20 s</td><td>Aligned</td></tr>
+                <tr><td>Wharf</td><td>(-7, 15)</td><td>(-16, 83)</td><td>3.00 s</td><td>Aligned</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </details>
       </section>
 
       <section id="external">
-        <div class="section-heading"><p class="eyebrow">05 · Beyond the supplied set</p><h2>Three more collection plates</h2><p>These images came from the <a href="https://www.loc.gov/collections/prokudin-gorskii/">Library of Congress Prokudin-Gorskii collection</a> and used the exact same pipeline, with no per-image tuning.</p></div>
+        <div class="section-heading">
+          <p class="eyebrow">05 · Beyond the supplied set</p>
+          <h2>Three more collection plates</h2>
+          <p>
+            These images came from the
+            <a href="https://www.loc.gov/collections/prokudin-gorskii/">Library of Congress Prokudin-Gorskii collection</a>
+            and used the exact same pipeline, with no per-image tuning.
+          </p>
+        </div>
+
         <div class="result-grid three">
           <figure><img src="assets/pyramid/external/Lodeinoe_colorized.jpg" alt="Colorized Lodeinoe"><figcaption><strong>Lodeinoe</strong><span>G→B (11, 26) · R→B (16, 63)</span><em>3.11 s</em></figcaption></figure>
           <figure><img src="assets/pyramid/external/Ostrechiny_colorized.jpg" alt="Colorized Ostrechiny"><figcaption><strong>Ostrechiny</strong><span>G→B (-6, 13) · R→B (-12, 133)</span><em>3.03 s</em></figcaption></figure>
@@ -109,11 +294,170 @@
       </section>
 
       <section class="notes" id="failure">
-        <div class="section-heading"><p class="eyebrow">06 · Failure analysis & extras</p><h2>Where raw-pixel NCC breaks.</h2></div>
-        <div class="notes-grid"><div><h3>Emir of Bukhara</h3><p>Green aligns at <code>(24, 49)</code>, but red lands at an implausible <code>(-205, 141)</code>. The red and blue exposures have substantially different brightness patterns, so raw-pixel NCC finds a false correlation rather than geometric alignment. Edge or gradient alignment would be a useful next experiment.</p></div><div><h3>Bells & whistles</h3><p>Two implementation details improve the baseline: I exclude the outer 10% from scoring to avoid plate borders, and use a coarse-to-fine pyramid to make large-displacement TIFF alignment practical. The final channel shifts still use the required NCC pipeline.</p></div></div>
+        <div class="section-heading">
+          <p class="eyebrow">06 · Failure analysis</p>
+          <h2>Where raw-pixel NCC breaks.</h2>
+        </div>
+
+        <div class="notes-grid">
+          <div>
+            <h3>Emir of Bukhara</h3>
+            <p>
+              Green aligns at <code>(24, 49)</code>, but the baseline red channel lands at
+              <code>(-205, 141)</code>. The red and blue exposures have substantially different
+              brightness patterns, so raw-intensity NCC finds a false correlation rather than
+              the correct geometric correspondence.
+            </p>
+          </div>
+
+          <div>
+            <h3>What I changed</h3>
+            <p>
+              Instead of changing the pyramid or search strategy, I changed only the feature
+              representation used during scoring. The optional experiment below computes
+              Sobel gradient magnitude before NCC so that the search compares structural
+              boundaries rather than absolute brightness.
+            </p>
+          </div>
+        </div>
       </section>
+
+      <section id="bells-whistles">
+        <div class="section-heading">
+          <p class="eyebrow">07 · Bells &amp; Whistles</p>
+          <h2>Better features: Sobel-gradient alignment.</h2>
+          <p>
+            The assignment suggests using gradients or edges when RGB intensity similarity
+            is unreliable. I tested that idea on the one supplied image where the baseline
+            clearly fails: Emir of Bukhara.
+          </p>
+        </div>
+
+        <div class="bells-intro">
+          <div>
+            <p>
+              In the baseline method, each candidate translation is scored using NCC on raw
+              grayscale intensity. This assumes that corresponding objects have similar
+              brightness across the blue, green, and red exposures.
+            </p>
+            <p>
+              For strongly colored materials this assumption can break: a region can be
+              bright through one filter and dark through another even though its geometric
+              location is unchanged.
+            </p>
+          </div>
+
+          <div class="feature-equation" aria-label="Comparison between raw-intensity and gradient feature matching">
+            <span>Baseline feature</span>
+            <strong>I<sub>1</sub> ↔ I<sub>2</sub></strong>
+            <span class="feature-arrow">↓</span>
+            <span>Improved feature</span>
+            <strong>|∇I<sub>1</sub>| ↔ |∇I<sub>2</sub>|</strong>
+          </div>
+        </div>
+
+        <div class="comparison-grid">
+          <figure class="comparison-card failure-comparison">
+            <img src="assets/bells_whistles/emir_intensity.jpg"
+                 alt="Emir of Bukhara aligned with raw-intensity NCC">
+            <figcaption>
+              <strong>Baseline — raw-intensity NCC</strong>
+              <span>G→B <code>(24, 49)</code></span>
+              <span>R→B <code>(-205, 141)</code></span>
+              <em>Red channel fails under raw-pixel matching.</em>
+            </figcaption>
+          </figure>
+
+          <figure class="comparison-card success-comparison">
+            <img src="assets/bells_whistles/emir_gradient.jpg"
+                 alt="Emir of Bukhara aligned with Sobel-gradient NCC">
+            <figcaption>
+              <strong>Improved — Sobel-gradient NCC</strong>
+              <span>G→B <code>(24, 49)</code></span>
+              <span>R→B <code>(40, 107)</code></span>
+              <em>Gradient features recover a much more plausible red displacement.</em>
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="experiment-summary">
+          <div>
+            <span class="summary-label">Intensity NCC</span>
+            <strong>R→B (-205, 141)</strong>
+            <small>3.07 s baseline run</small>
+          </div>
+          <span class="summary-arrow">→</span>
+          <div>
+            <span class="summary-label">Sobel-gradient NCC</span>
+            <strong>R→B (40, 107)</strong>
+            <small>4.65 s gradient run</small>
+          </div>
+        </div>
+
+        <div class="bells-explanation">
+          <h3>Why gradients help</h3>
+          <p>
+            Sobel gradient magnitude emphasizes local intensity changes instead of absolute
+            brightness. Boundaries such as clothing outlines, windows, and architectural
+            edges tend to occur at the same geometric locations across all three exposures
+            even when their brightness differs.
+          </p>
+
+          <p>
+            The image pyramid, translation-only motion model, NCC objective, coarse and
+            refinement radii, and 10% scoring crop are unchanged. Only the representation
+            used to score each candidate translation changes.
+          </p>
+
+          <p>
+            Gradients are used only to <strong>estimate the displacement</strong>. Once the
+            best displacement is found, I apply that translation to the original grayscale
+            red and green exposures and stack those original channels into the final RGB image.
+          </p>
+        </div>
+      </section>
+
+      <section id="takeaways">
+        <div class="section-heading">
+          <p class="eyebrow">08 · Takeaways</p>
+          <h2>What worked.</h2>
+          <p>
+            Raw-intensity NCC plus a coarse-to-fine pyramid is sufficient for nearly the
+            entire supplied set. Border-aware scoring improves stability, and gradient
+            features provide a targeted fix for a case where intensity correspondence
+            is unreliable.
+          </p>
+        </div>
+
+        <div class="takeaway-grid">
+          <div>
+            <strong>Single scale</strong>
+            <span>Simple exhaustive search is enough for the low-resolution JPEGs.</span>
+          </div>
+          <div>
+            <strong>Image pyramid</strong>
+            <span>Large TIFF displacements become practical with coarse-to-fine refinement.</span>
+          </div>
+          <div>
+            <strong>Border-aware NCC</strong>
+            <span>Ignoring unreliable plate borders prevents false correlations.</span>
+          </div>
+          <div>
+            <strong>Gradient features</strong>
+            <span>Sobel edges handle cross-channel brightness differences more robustly.</span>
+          </div>
+        </div>
+      </section>
+
     </div>
   </main>
-  <footer><div class="wrap">CS180 Project 1 · <a href="https://cal-cs180.github.io/fa26/hw/proj1/index.html">Project specification</a> · <a href="#top">Back to top</a></div></footer>
+
+  <footer>
+    <div class="wrap">
+      CS180 Project 1 ·
+      <a href="https://cal-cs180.github.io/fa26/hw/proj1/index.html">Project specification</a>
+      · <a href="#top">Back to top</a>
+    </div>
+  </footer>
 </body>
 </html>
