@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CS180 Project 2: Fun with Filters and Frequencies by Esther Ng Xin Yue.">
+  <title>CS180 Project 2 — Fun with Filters and Frequencies</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header" id="top">
+    <nav class="nav wrap" aria-label="Project navigation">
+      <a class="course" href="../index.html">CS180</a>
+      <div class="nav-links">
+        <a href="#filters">Filters</a>
+        <a href="#sharpening">Sharpening</a>
+        <a href="#hybrids">Hybrids</a>
+        <a href="#stacks">Stacks</a>
+        <a href="#blending">Blending</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero wrap">
+      <p class="eyebrow">Project 02 · Fall 2026</p>
+      <h1>Fun with Filters<br>&amp; Frequencies</h1>
+      <p class="lede">From pixel-level convolution to frequency-aware hybrids and seamless multiresolution blends.</p>
+      <div class="hero-meta"><span>Esther Ng Xin Yue</span><a href="assets/src.zip">Download source code</a></div>
+    </section>
+
+    <div class="wrap report">
+      <section id="filters">
+        <div class="section-heading">
+          <p class="eyebrow">Part 1 · Filters and edges</p>
+          <h2>Convolution makes local change visible.</h2>
+          <p>I used zero-filled, same-size padding throughout. Difference filters expose intensity changes; Gaussian smoothing lets the meaningful structure survive before thresholding.</p>
+        </div>
+
+        <div class="subsection">
+          <div class="subhead"><span>1.1</span><div><h3>Convolution from scratch</h3><p>A 9 × 9 box filter, D<sub>x</sub>, and D<sub>y</sub> applied to my portrait. The output compares both NumPy implementations with SciPy.</p></div></div>
+          <figure class="wide-figure"><img src="web-assets/convolution_comparison.jpg" alt="Portrait convolved with box and finite-difference filters, comparing four-loop, two-loop, and SciPy implementations"><figcaption><strong>Box and derivative filtering on a portrait</strong><span>All three methods produce the same zero-padded, same-size result.</span></figcaption></figure>
+          <div class="two-col">
+            <div class="callout"><p class="label">Implementation</p><p>Each kernel is flipped before sliding it over the padded image. The two-loop version vectorizes the inner kernel calculation while preserving convolution semantics.</p><pre><code>padded = np.pad(image, ((py, py), (px, px)))
+flipped = kernel[::-1, ::-1]
+for y in range(height):
+  for x in range(width):
+    result[y, x] = np.sum(
+      padded[y:y+kh, x:x+kw] * flipped)</code></pre></div>
+            <div class="metric-card"><p class="label">Runtime &amp; agreement</p><dl><div><dt>Four loops</dt><dd>0.723 s</dd></div><div><dt>Two loops</dt><dd>0.069 s</dd></div><div><dt>SciPy</dt><dd>0.003 s</dd></div><div><dt>Maximum error</dt><dd>6.661 × 10<sup>−16</sup></dd></div></dl><p>The vectorized inner sum is about 10× faster than four nested loops, while SciPy is faster still. Zero fill makes boundaries darker because neighborhoods beyond the image contribute zeros.</p></div>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <div class="subhead"><span>1.2</span><div><h3>Finite differences</h3><p>I convolved the cameraman image with D<sub>x</sub> and D<sub>y</sub>, computed <em>√(D<sub>x</sub><sup>2</sup> + D<sub>y</sub><sup>2</sup>)</em>, then selected a threshold that keeps major outlines while suppressing most texture noise.</p></div></div>
+          <figure class="wide-figure"><img src="web-assets/edge_detection.jpg" alt="Cameraman image showing finite differences, gradient magnitude, thresholded edges, and Gaussian-smoothed equivalents"><figcaption><strong>Raw finite differences versus smoothing first</strong><span>Raw edge threshold: 0.18 · Gaussian σ = 2 · smoothed edge threshold: 0.06.</span></figcaption></figure>
+          <p class="observation">The raw magnitude includes fine-grained background variation. Blurring before differentiation reduces those high-frequency responses, so its lower threshold produces more coherent contours around the photographer and camera.</p>
+        </div>
+
+        <div class="subsection">
+          <div class="subhead"><span>1.3</span><div><h3>Derivative of Gaussian</h3><p>I built a 25 × 25 Gaussian from OpenCV’s 1D Gaussian kernel and outer product, then convolved it with D<sub>x</sub> and D<sub>y</sub>. This combines smoothing and differentiation in one filter.</p></div></div>
+          <figure class="wide-figure"><img src="web-assets/dog_and_orientation.jpg" alt="Derivative of Gaussian filters, DoG gradient magnitude and edges, HSV gradient orientation, and difference from sequential smoothing and differentiation"><figcaption><strong>DoG results and gradient orientation</strong><span>DoG edge threshold: 0.06. Hue encodes direction; brightness and saturation encode gradient strength.</span></figcaption></figure>
+          <p class="observation">The one-pass DoG response matches the sequential blurred-then-differentiated result to <strong>2.257 × 10<sup>−15</sup></strong> in the interior. The visible boundary discrepancy is expected: applying two zero-padded operations creates a wider affected border. For the orientation visualization, I used <code>arctan(D<sub>y</sub> / D<sub>x</sub>)</code> with explicit quadrant corrections rather than a built-in angle function.</p>
+        </div>
+      </section>
+
+      <section id="sharpening">
+        <div class="section-heading"><p class="eyebrow">Part 2.1 · Applications</p><h2>Sharpening is a controlled high-frequency boost.</h2><p>Unsharp masking subtracts a Gaussian-blurred image from the original to isolate high frequencies, then adds a scaled version of that detail back.</p></div>
+        <div class="equation"><span>I<sub>sharp</sub></span><strong>=</strong><span>I + α(I − G * I)</span><span class="equation-note">α controls the amount</span></div>
+        <figure class="wide-figure"><img src="web-assets/sharpening_taj.jpg" alt="Taj Mahal image showing original, blur, high frequencies, sharpened result, and sharpening amounts"><figcaption><strong>Supplied Taj Mahal image</strong><span>Gaussian σ = 2; the figure compares the low and high components with several sharpening amounts.</span></figcaption></figure>
+        <figure class="wide-figure"><img src="web-assets/sharpening_custom.jpg" alt="Custom image showing unsharp masking components, sharpening variants, and a blur-and-recover experiment"><figcaption><strong>Custom recovery experiment</strong><span>A sharp input was intentionally blurred and then sharpened with amount = 2.0.</span></figcaption></figure>
+        <p class="observation">Increasing the amount makes fine lines and contrast more apparent, but it can also create halos and amplify noise. Sharpening the deliberately blurred image recovers some edge contrast, but not the original detail: the lost high frequencies cannot be perfectly reconstructed.</p>
+      </section>
+
+      <section id="hybrids">
+        <div class="section-heading"><p class="eyebrow">Part 2.2 · Hybrid images</p><h2>Distance changes the image you see.</h2><p>Each hybrid combines the low frequencies of one aligned image with the high frequencies of another. Up close the high-frequency subject dominates; at a distance the low-frequency subject takes over.</p></div>
+        <figure class="wide-figure process"><img src="web-assets/hybrid_derek_nutmeg_process.jpg" alt="Derek and Nutmeg hybrid construction with inputs, alignment, Fourier magnitude spectra, filtering, and final hybrid"><figcaption><strong>Derek + Nutmeg: full frequency analysis</strong><span>Derek supplies the low frequencies (σ = 7); aligned Nutmeg supplies the high frequencies (σ = 5).</span></figcaption></figure>
+        <div class="result-grid">
+          <figure><img src="web-assets/hybrid_custom_1_overview.jpg" alt="Custom cat and owl hybrid with both inputs and result"><figcaption><strong>Custom hybrid 1 · Cat + owl</strong><span>Cat low-pass + aligned owl high-pass.</span></figcaption></figure>
+          <figure><img src="web-assets/hybrid_custom_2_overview.jpg" alt="Custom face hybrid with both inputs and result"><figcaption><strong>Custom hybrid 2 · Two faces</strong><span>Face 1 low-pass + aligned face 2 high-pass.</span></figcaption></figure>
+        </div>
+        <p class="observation">Alignment is essential: matching eyes, nose, and overall scale allows the two interpretations to share a coherent spatial structure. I kept color in both components; it preserves recognizable low-frequency color regions while retaining crisp, colorful high-frequency details.</p>
+      </section>
+
+      <section id="stacks">
+        <div class="section-heading"><p class="eyebrow">Part 2.3 · Stacks</p><h2>Separate the image into frequency bands.</h2><p>A Gaussian stack repeatedly blurs without downsampling. Each Laplacian level is the difference between adjacent Gaussian levels, with the final low-pass image completing the reconstruction.</p></div>
+        <div class="stack-diagram" aria-label="Relationship between Gaussian and Laplacian stacks"><div><span>G<sub>0</sub></span><span>original</span></div><b>−</b><div><span>G<sub>1</sub></span><span>blurred</span></div><b>=</b><div class="accent-box"><span>L<sub>0</sub></span><span>detail band</span></div><i>… repeat at every level</i></div>
+        <div class="stack-grid">
+          <figure><img src="web-assets/gaussian_stack_oraple_a.jpg" alt="Gaussian stack for apple"><figcaption><strong>Apple Gaussian stack</strong><span>Successively smoother levels, no resizing.</span></figcaption></figure>
+          <figure><img src="web-assets/gaussian_stack_oraple_b.jpg" alt="Gaussian stack for orange"><figcaption><strong>Orange Gaussian stack</strong><span>Same-resolution low-frequency stack.</span></figcaption></figure>
+          <figure><img src="web-assets/laplacian_stack_oraple_a.jpg" alt="Laplacian stack for apple"><figcaption><strong>Apple Laplacian stack</strong><span>Signed detail bands, visualized around gray.</span></figcaption></figure>
+          <figure><img src="web-assets/laplacian_stack_oraple_b.jpg" alt="Laplacian stack for orange"><figcaption><strong>Orange Laplacian stack</strong><span>The sum of all bands reconstructs the image.</span></figcaption></figure>
+        </div>
+      </section>
+
+      <section id="blending">
+        <div class="section-heading"><p class="eyebrow">Part 2.4 · Multiresolution blending</p><h2>Blend each frequency band with a soft mask.</h2><p>I formed Laplacian stacks for both images and a Gaussian stack for the mask, blended corresponding levels, and summed the result. This makes a seam gradual at low frequencies while retaining sharp detail at high frequencies.</p></div>
+        <figure class="wide-figure"><img src="web-assets/blend_oraple_process.jpg" alt="Apple and orange multiresolution blending process including Laplacian and Gaussian stacks"><figcaption><strong>Oraple process</strong><span>The classic vertical apple–orange blend, with the image and mask stacks used to create it.</span></figcaption></figure>
+        <figure class="wide-figure"><img src="web-assets/blend_oraple_overview.jpg" alt="Apple, orange, vertical mask, and resulting multiresolution blend"><figcaption><strong>Oraple overview</strong><span>A soft vertical transition replaces the abrupt seam of direct copy-and-paste.</span></figcaption></figure>
+        <div class="result-grid blends">
+          <figure><img src="web-assets/blend_custom_1_process.jpg" alt="Butterfly and orchid blending process with irregular mask and stacks"><figcaption><strong>Custom blend 1 · Irregular mask</strong><span>Butterfly subject placed over an orchid through a shaped mask.</span></figcaption></figure>
+          <figure><img src="web-assets/blend_custom_1_overview.jpg" alt="Butterfly, orchid, irregular mask and final blend"><figcaption><strong>Custom blend 1 · Result</strong><span>The mask follows the butterfly rather than a straight seam.</span></figcaption></figure>
+          <figure><img src="web-assets/blend_custom_2_overview.jpg" alt="Two landscape images, a vertical mask and the resulting blend"><figcaption><strong>Custom blend 2 · Horizon seam</strong><span>A vertical soft mask joins two aligned scenes.</span></figcaption></figure>
+        </div>
+        <p class="observation">The irregular butterfly mask is where multiresolution blending is most useful: a hard cut would expose an obvious pasted boundary, but a blurred mask smoothly transfers broad color while allowing the butterfly’s high-frequency edges to remain defined.</p>
+      </section>
+
+      <section class="takeaway">
+        <p class="eyebrow">Takeaway</p><h2>What I learned</h2><p>Filtering is not just a cleanup step. It is a way to choose which visual information gets to matter: differences isolate edges, low and high passes change perception, and frequency bands let two images meet without a visible seam.</p>
+      </section>
+    </div>
+  </main>
+
+  <footer><div class="wrap">CS180 Project 2 · Esther Ng Xin Yue · <a href="#top">Back to top ↑</a></div></footer>
+</body>
+</html>
