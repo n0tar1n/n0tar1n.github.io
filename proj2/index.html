@@ -33,7 +33,7 @@
         <section class="subpart" id="part1-1">
 <p class="subpart-number">Part 1.1</p>
 <h3>Convolutions from Scratch</h3>
-<p class="subpart-intro">I implemented same-size 2D convolution twice using NumPy only: first with four loops, then with two loops and a vectorized kernel sum. Both use <strong>zero-filled padding</strong> and explicitly <strong>flip the filter</strong>, so they compute convolution rather than correlation.</p>
+<p class="subpart-intro">I implemented same-size 2D convolution twice using NumPy only: first with four loops, then with two loops and a vectorized kernel sum. The implementations use only array indexing, slicing, <code>np.pad</code>, and <code>np.sum</code>; SciPy appears only afterward as the comparison reference. Both use <strong>zero-filled padding</strong> and explicitly <strong>flip the filter</strong>, so they compute convolution rather than correlation.</p>
 <div class="filter-definitions">
 <span>
 <strong>D<sub>x</sub>
@@ -190,7 +190,7 @@ for y in range(height):
         <section class="subpart" id="part1-3">
 <p class="subpart-number">Part 1.3</p>
 <h3>Derivative of Gaussian (DoG) Filter</h3>
-<p class="subpart-intro">I first blurred the cameraman image with a 25 × 25 Gaussian (σ = 2) and repeated the finite-difference procedure. I then convolved the Gaussian with D<sub>x</sub> and D<sub>y</sub> to apply smoothing and differentiation in one pass.</p>
+<p class="subpart-intro">I first blurred the cameraman image with a 25 × 25 Gaussian (σ = 2)—shown in the first panel below—and repeated the finite-difference procedure. I then convolved the Gaussian with D<sub>x</sub> and D<sub>y</sub> to apply smoothing and differentiation in one pass.</p>
 <div class="five-up">
 <figure>
 <img src="web-assets/part1-3-blurred.jpg" alt="Gaussian-smoothed cameraman image">
@@ -275,7 +275,7 @@ for y in range(height):
 </figure>
 </div>
 <p class="result-note">
-<strong>Result:</strong> smoothing removes many noisy responses, while the blurred-then-differentiate and DoG approaches preserve the same major edges. Their interior gradient vectors agree to 2.257 × 10<sup>−15</sup>; only the padding boundary differs because the sequential method pads twice.</p>
+<strong>Result:</strong> compared with raw finite differences, Gaussian smoothing removes many noisy texture responses while retaining the major silhouette, camera, and tripod edges. The blurred-then-differentiate and DoG approaches preserve the same major edges: their interior gradient vectors agree to 2.257 × 10<sup>−15</sup>. Only the padding boundary differs because the sequential method pads twice.</p>
 <section class="bells-whistles">
 <p class="subpart-number">Bells &amp; Whistles</p>
 <h4>HSV Gradient Orientation</h4>
@@ -328,7 +328,7 @@ for y in range(height):
 <h3>Hybrid Images</h3>
 <p class="subpart-intro">A hybrid uses low frequencies from one aligned image and high frequencies from another. Viewing distance determines which interpretation dominates.</p>
 <p class="label section-label">Derek + Nutmeg process</p>
-<p class="process-intro">Derek supplies low frequencies (σ = 7); Nutmeg supplies high frequencies (σ = 5). The image-space steps are grouped first; their log-Fourier magnitudes appear below.</p>
+<p class="process-intro">Derek supplies low frequencies (σ = 7); Nutmeg supplies high frequencies (σ = 5). I add the filtered images to form the hybrid: <em>hybrid = low-pass Derek + high-pass Nutmeg</em>. In the paired grid, each spectrum sits directly beneath the image it describes.</p>
 <p class="label section-label">Input alignment</p>
 <div class="hybrid-alignment">
 <figure>
@@ -352,8 +352,20 @@ for y in range(height):
 </figcaption>
 </figure>
 </div>
-<p class="label section-label">Filtered images and log Fourier magnitudes</p>
-<div class="hybrid-rows">
+<p class="label section-label">Image-space process and matching log-Fourier magnitudes</p>
+<div class="hybrid-frequency-grid">
+<figure>
+<img src="web-assets/hybrid-derek-input.jpg" alt="Derek low-pass source">
+<figcaption>
+<strong>Derek input</strong>
+</figcaption>
+</figure>
+<figure>
+<img src="web-assets/hybrid-nutmeg-aligned.jpg" alt="Nutmeg aligned to Derek">
+<figcaption>
+<strong>Aligned Nutmeg input</strong>
+</figcaption>
+</figure>
 <figure>
 <img src="web-assets/hybrid-lowpass-derek.jpg" alt="Low-pass filtered Derek">
 <figcaption>
@@ -370,6 +382,18 @@ for y in range(height):
 <img src="web-assets/hybrid-derek-nutmeg.jpg" alt="Derek and Nutmeg hybrid image">
 <figcaption>
 <strong>Hybrid</strong>
+</figcaption>
+</figure>
+<figure>
+<img src="web-assets/hybrid-derek-input-spectrum.jpg" alt="Log Fourier magnitude of Derek input">
+<figcaption>
+<strong>Derek input spectrum</strong>
+</figcaption>
+</figure>
+<figure>
+<img src="web-assets/hybrid-nutmeg-aligned-spectrum.jpg" alt="Log Fourier magnitude of aligned Nutmeg input">
+<figcaption>
+<strong>Aligned Nutmeg spectrum</strong>
 </figcaption>
 </figure>
 <figure>
@@ -413,7 +437,7 @@ for y in range(height):
         <section class="subpart" id="part2-3">
 <p class="subpart-number">Part 2.3</p>
 <h3>Gaussian and Laplacian Stacks</h3>
-<p class="subpart-intro">Gaussian stacks repeatedly blur without downsampling. Laplacian stacks store the detail lost between adjacent Gaussian levels; their sum reconstructs the input.</p>
+<p class="subpart-intro">Gaussian stacks repeatedly blur without downsampling. Laplacian stacks store the detail lost between adjacent Gaussian levels; their sum reconstructs the input. I build both stacks explicitly as lists of same-resolution images using ordinary Gaussian convolutions and adjacent-level subtraction—no built-in pyramid functions or pyramid downsampling.</p>
 <div class="evidence">
 <div class="evidence-title">Apple and orange stack visualizations </div>
 <div class="evidence-body">
@@ -488,7 +512,7 @@ for y in range(height):
 <div class="evidence">
 <div class="evidence-title">Irregular-mask blend </div>
 <div class="evidence-body">
-<p>The butterfly–orchid overview above shows the two inputs and its irregular mask. This view shows the corresponding Laplacian-band blend required for the favorite custom result.</p>
+<p>The butterfly–orchid overview above shows the two inputs and its irregular mask. The full process for this favorite custom result is shown below: the high-, medium-, and low-frequency Laplacian bands are blended separately before reconstruction.</p>
 <figure>
 <img loading="lazy" src="web-assets/blend_custom_1_process.jpg" alt="Butterfly and orchid multiresolution blending bands">
 <figcaption>
