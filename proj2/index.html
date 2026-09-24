@@ -190,7 +190,7 @@ for y in range(height):
         <section class="subpart" id="part1-3">
 <p class="subpart-number">Part 1.3</p>
 <h3>Derivative of Gaussian (DoG) Filter</h3>
-<p class="subpart-intro">I first blurred the cameraman image with a 25 × 25 Gaussian (σ = 2)—shown in the first panel below—and repeated the finite-difference procedure. I then convolved the Gaussian with D<sub>x</sub> and D<sub>y</sub> to apply smoothing and differentiation in one pass.</p>
+<p class="subpart-intro">I construct the 25 × 25 Gaussian (σ = 2) from <code>cv2.getGaussianKernel</code> and its outer product, then blur the cameraman image with it—the first panel below. I repeat the finite-difference procedure and convolve the Gaussian with D<sub>x</sub> and D<sub>y</sub> to apply smoothing and differentiation in one pass.</p>
 <div class="five-up">
 <figure>
 <img src="web-assets/part1-3-blurred.jpg" alt="Gaussian-smoothed cameraman image">
