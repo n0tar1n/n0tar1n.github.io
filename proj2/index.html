@@ -12,8 +12,6 @@
   <main>
     <section class="hero wrap"><p class="eyebrow">Project 02 · Fall 2026</p><h1>Fun with Filters<br>&amp; Frequencies</h1><p>Esther Ng Xin Yue</p></section>
     <div class="wrap report">
-      <section class="intro"><p class="eyebrow">Overview</p><h2>Filtering controls which image information remains visible.</h2><p>This project moves from implementing convolution directly to using frequency bands for sharpening, hybrid images, and seamless blending.</p></section>
-
       <section class="part" id="part1"><div class="part-heading"><p class="eyebrow">Part 1</p><h2>Fun with Filters</h2><p>Filters combine nearby pixels to reveal local change. I first implemented convolution directly, then used derivatives and Gaussian smoothing to detect meaningful edges.</p></div>
         <section class="subpart" id="part1-1"><p class="subpart-number">Part 1.1</p><h3>Convolutions from Scratch</h3><p class="subpart-intro">I implemented same-size 2D convolution twice using NumPy only: first with four loops, then with two loops and a vectorized kernel sum. Both use <strong>zero-filled padding</strong> and explicitly <strong>flip the filter</strong>, so they compute convolution rather than correlation.</p>
           <div class="implementation"><div><p class="label">Four-loop implementation</p><pre><code>kh, kw = kernel.shape
