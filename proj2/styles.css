@@ -60,6 +60,7 @@ code { padding: .04rem .22rem; background: #f3f3f3; border-radius: 2px; font: in
 
 .result-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .four-up { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .85rem; margin-top: 1.35rem; }
+.five-up { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .85rem; margin-top: 1.35rem; }
 .comparison-table { max-width: 700px; margin-top: 1.2rem; padding: .9rem 1rem; background: var(--soft); border: 1px solid var(--line); }
 .comparison-table .label { margin-bottom: .5rem; }
 .comparison-table table { width: 100%; border-collapse: collapse; font-size: .8rem; }
@@ -87,7 +88,7 @@ footer a { color: var(--ink); }
   .hero { padding: 3rem 0 2.5rem; }
   .report > section { padding: 2.8rem 0; }
   .part { padding-top: 2.8rem !important; }
-  .implementation, .comparison, .result-grid, .result-grid.three, .four-up, .evidence-grid { grid-template-columns: 1fr; }
+  .implementation, .comparison, .result-grid, .result-grid.three, .four-up, .five-up, .evidence-grid { grid-template-columns: 1fr; }
   .comparison-table { overflow-x: auto; }
   .hero-figure img { max-height: none; }
 }
