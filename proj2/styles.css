@@ -65,16 +65,8 @@ code { padding: .04rem .22rem; background: #f3f3f3; border-radius: 2px; font: in
 .five-up { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .85rem; margin-top: 1.35rem; }
 .section-label { margin-top: 1.65rem; }
 .process-intro { max-width: 740px; margin: 0; color: var(--muted); font-size: .88rem; }
-.hybrid-process { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .85rem; margin-top: 1.15rem; }
-.hybrid-process.image-row { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-.hybrid-process img { aspect-ratio: 1 / 1; object-fit: contain; }
-.hybrid-crop { aspect-ratio: 626 / 554; background: #fff url("web-assets/hybrid_derek_nutmeg_process.jpg") no-repeat; background-size: 400% 300%; }
-.derek-input { background-position: left top; }.nutmeg-original { background-position: 33.333% top; }.nutmeg-aligned { background-position: 66.667% top; }
-.derek-lowpass { background-position: 33.333% 50%; }.nutmeg-highpass { background-position: 66.667% 50%; }.hybrid-result { background-position: 33.333% bottom; }
-.lowpass-spectrum { background-position: right 50%; }.highpass-spectrum { background-position: left bottom; }.hybrid-spectrum { background-position: 66.667% bottom; }
+.hybrid-alignment, .hybrid-rows { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .85rem; margin-top: 1.15rem; }
 .dog-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .85rem; margin-top: 1.3rem; }
-.dog-crop { aspect-ratio: 594 / 552; background: #fff url("web-assets/dog_and_orientation.jpg") no-repeat; background-size: 300% 200%; }
-.dog-dx { background-position: left top; }.dog-dy { background-position: 50% top; }.dog-magnitude { background-position: right top; }.dog-orientation { background-position: 50% bottom; }
 .orientation-figure { max-width: 360px; margin-top: 1rem; }
 .blend-results { display: grid; gap: 1rem; margin-top: 1.35rem; }
 .bells-whistles { max-width: 700px; margin-top: 1.6rem; padding: 1.1rem 1.2rem; background: var(--soft); border-left: 2px solid var(--accent); }
@@ -108,7 +100,7 @@ footer a { color: var(--ink); }
   .hero { padding: 3rem 0 2.5rem; }
   .report > section { padding: 2.8rem 0; }
   .part { padding-top: 2.8rem !important; }
-  .implementation, .comparison, .result-grid, .result-grid.three, .four-up, .five-up, .hybrid-process, .hybrid-process.image-row, .dog-grid, .evidence-grid { grid-template-columns: 1fr; }
+  .implementation, .comparison, .result-grid, .result-grid.three, .four-up, .five-up, .hybrid-alignment, .hybrid-rows, .dog-grid, .evidence-grid { grid-template-columns: 1fr; }
   .comparison-table { overflow-x: auto; }
   .hero-figure img { max-height: none; }
 }
