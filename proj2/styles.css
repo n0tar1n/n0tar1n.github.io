@@ -62,6 +62,9 @@ code { padding: .04rem .22rem; background: #f3f3f3; border-radius: 2px; font: in
 .four-up { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .85rem; margin-top: 1.35rem; }
 .five-up { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .85rem; margin-top: 1.35rem; }
 .section-label { margin-top: 1.65rem; }
+.process-intro { max-width: 740px; margin: 0; color: var(--muted); font-size: .88rem; }
+.hybrid-process { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .85rem; margin-top: 1.15rem; }
+.hybrid-process img { aspect-ratio: 1 / 1; object-fit: contain; }
 .bells-whistles { max-width: 700px; margin-top: 1.6rem; padding: 1.1rem 1.2rem; background: var(--soft); border-left: 2px solid var(--accent); }
 .bells-whistles h4 { margin: 0 0 .35rem; font: 500 1.18rem/1.2 Georgia, "Times New Roman", serif; }
 .bells-whistles > p:not(.subpart-number) { margin: 0 0 .8rem; color: var(--muted); font-size: .88rem; }
@@ -92,7 +95,7 @@ footer a { color: var(--ink); }
   .hero { padding: 3rem 0 2.5rem; }
   .report > section { padding: 2.8rem 0; }
   .part { padding-top: 2.8rem !important; }
-  .implementation, .comparison, .result-grid, .result-grid.three, .four-up, .five-up, .evidence-grid { grid-template-columns: 1fr; }
+  .implementation, .comparison, .result-grid, .result-grid.three, .four-up, .five-up, .hybrid-process, .evidence-grid { grid-template-columns: 1fr; }
   .comparison-table { overflow-x: auto; }
   .hero-figure img { max-height: none; }
 }
