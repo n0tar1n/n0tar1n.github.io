@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CS180 Project 3: Flow Models, by Esther Ng Xin Yue.">
+  <title>CS180 Project 3 — Flow Models</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header" id="top">
+    <nav class="nav wrap" aria-label="Project navigation">
+      <a class="course" href="../index.html">CS180</a>
+      <div class="nav-links">
+        <a href="#part-a">Part A</a>
+        <a href="#part-b">Part B</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero wrap">
+      <p class="eyebrow">Project 03 · Fall 2026</p>
+      <h1>Flow Models:<br>Sampling &amp; Training</h1>
+      <p>Esther Ng Xin Yue</p>
+    </section>
+
+    <div class="wrap report">
+      <section class="part" id="part-a">
+        <div class="part-heading">
+          <p class="eyebrow">Part A</p>
+          <h2>Exploring the Power of Flow Models</h2>
+          <p>I used the pretrained PixNerd flow model to follow a learned velocity field from noise to an image. The experiments below use Euler integration with a step size of 0.02; guided examples use classifier-free guidance with weight 7.</p>
+        </div>
+
+        <section class="subpart" id="a-1">
+          <p class="subpart-number">Sections 1.1–1.4</p>
+          <h3>Noising, Denoising &amp; Velocity</h3>
+          <p class="subpart-intro">For one personal photograph, I use the same sampled noise throughout. As time increases, the linear interpolation preserves more of the original. The learned one-step estimate restores recognizable structure much more effectively than the Gaussian-blur baseline, especially at high noise.</p>
+
+          <figure class="wide-figure">
+            <img src="assets/part-a/cell-9-output-0.png" alt="Original personal photograph and its noisy versions at times 0.25, 0.50, and 0.75.">
+            <figcaption><strong>1.1 · Forward process</strong><span>One shared Gaussian-noise realization, from t = 0.25 to t = 0.75.</span></figcaption>
+          </figure>
+
+          <p class="label section-label">1.2 · Gaussian blur baseline</p>
+          <div class="result-grid three">
+            <figure><img src="assets/part-a/cell-11-output-0.png" alt="Gaussian-blur denoising result at time 0.25."><figcaption><strong>t = 0.25</strong><span>Noisy input and Gaussian estimate.</span></figcaption></figure>
+            <figure><img src="assets/part-a/cell-11-output-1.png" alt="Gaussian-blur denoising result at time 0.50."><figcaption><strong>t = 0.50</strong><span>Noisy input and Gaussian estimate.</span></figcaption></figure>
+            <figure><img src="assets/part-a/cell-11-output-2.png" alt="Gaussian-blur denoising result at time 0.75."><figcaption><strong>t = 0.75</strong><span>Noisy input and Gaussian estimate.</span></figcaption></figure>
+          </div>
+
+          <p class="label section-label">1.3 · One-step flow-model denoising</p>
+          <div class="result-grid three">
+            <figure><img src="assets/part-a/cell-13-output-1.png" alt="Original, noisy input, and flow-model one-step estimate at time 0.25."><figcaption><strong>t = 0.25</strong><span>Original · noisy · one-step estimate.</span></figcaption></figure>
+            <figure><img src="assets/part-a/cell-13-output-2.png" alt="Original, noisy input, and flow-model one-step estimate at time 0.50."><figcaption><strong>t = 0.50</strong><span>Original · noisy · one-step estimate.</span></figcaption></figure>
+            <figure><img src="assets/part-a/cell-13-output-3.png" alt="Original, noisy input, and flow-model one-step estimate at time 0.75."><figcaption><strong>t = 0.75</strong><span>Original · noisy · one-step estimate.</span></figcaption></figure>
+          </div>
+
+          <p class="label section-label">1.4 · Predicted versus ground-truth update</p>
+          <figure class="reference-image"><img src="assets/part-a/cell-16-output-1.png" alt="The original personal photograph used for velocity comparisons."><figcaption><strong>Reference image</strong><span>The target used to calculate the ground-truth update.</span></figcaption></figure>
+          <div class="stacked-results">
+            <figure><img src="assets/part-a/cell-16-output-2.png" alt="Velocity visualization at time 0.25 showing noisy input, predicted update, ground-truth update, and RMS error."><figcaption><strong>t = 0.25</strong><span>Predicted update, target update, and per-pixel RMS error.</span></figcaption></figure>
+            <figure><img src="assets/part-a/cell-16-output-3.png" alt="Velocity visualization at time 0.50 showing noisy input, predicted update, ground-truth update, and RMS error."><figcaption><strong>t = 0.50</strong><span>Predicted update, target update, and per-pixel RMS error.</span></figcaption></figure>
+            <figure><img src="assets/part-a/cell-16-output-4.png" alt="Velocity visualization at time 0.75 showing noisy input, predicted update, ground-truth update, and RMS error."><figcaption><strong>t = 0.75</strong><span>Predicted update, target update, and per-pixel RMS error.</span></figcaption></figure>
+          </div>
+        </section>
+
+        <section class="subpart" id="a-2">
+          <p class="subpart-number">Sections 1.5–2.1</p>
+          <h3>Iterative Sampling &amp; Guidance</h3>
+          <p class="subpart-intro">Euler integration recomputes the velocity after every update, allowing the trajectory to progressively remove noise. For unconditional sampling I started from five independent noise states; classifier-free guidance uses the same starting states, so the difference is attributable to guidance.</p>
+          <div class="stacked-results">
+            <figure><img src="assets/part-a/cell-18-output-0.png" alt="Euler denoising trajectory from time 0.50 to 1.00."><figcaption><strong>1.5 · Euler denoising trajectory</strong><span>Every fifth update from t = 0.50 through t = 1.00.</span></figcaption></figure>
+            <figure><img src="assets/part-a/cell-18-output-1.png" alt="Original image compared with Gaussian blur, one-step denoising, and Euler denoising."><figcaption><strong>Method comparison</strong><span>Iterative sampling preserves more detail than a single extrapolation or blur.</span></figcaption></figure>
+            <figure><img src="assets/part-a/cell-20-output-0.png" alt="Five conditional samples from a high quality photo prompt."><figcaption><strong>1.6 · Conditional samples</strong><span>Five initial Gaussian-noise seeds with “a high quality photo.”</span></figcaption></figure>
+            <figure><img src="assets/part-a/cell-23-output-0.png" alt="Five classifier-free-guided samples from a high quality photo prompt."><figcaption><strong>2.1 · CFG samples</strong><span>Same seeds as above, with guidance weight w = 7.</span></figcaption></figure>
+          </div>
+          <p class="result-note"><strong>Observation:</strong> the broad photo prompt produces varied image content, but only weakly constrains the subject. With the same initial noise, CFG makes the samples more coherent and more strongly photo-like, while reducing their diversity.</p>
+        </section>
+
+        <section class="subpart" id="a-3">
+          <p class="subpart-number">Section 3.1</p>
+          <h3>Image-to-Image Editing</h3>
+          <p class="subpart-intro">Each panel begins with the input and then uses the seven required starting times: 0.02, 0.04, 0.06, 0.10, 0.14, 0.25, and 0.50. Lower start times give the sampler more freedom to reinterpret the input; higher ones preserve it.</p>
+          <p class="label section-label">Generic “a high quality photo” prompt</p>
+          <div class="stacked-results">
+            <figure><img src="assets/part-a/cell-26-output-0.png" alt="Campanile image-to-image editing results at seven start times."><figcaption><strong>Campanile</strong><span>Generic photo-prompt edit.</span></figcaption></figure>
+            <figure><img src="assets/part-a/cell-26-output-2.png" alt="First personal image editing results at seven start times."><figcaption><strong>Personal image 1</strong><span>Generic photo-prompt edit.</span></figcaption></figure>
+            <figure><img src="assets/part-a/cell-26-output-4.png" alt="Second personal image editing results at seven start times."><figcaption><strong>Personal image 2</strong><span>Generic photo-prompt edit.</span></figcaption></figure>
+          </div>
+
+          <p class="label section-label">Web image and hand drawings</p>
+          <div class="stacked-results">
+            <figure><img src="assets/part-a/cell-28-output-0.png" alt="Downloaded web image editing results at seven start times."><figcaption><strong>Web image</strong><span>Projected onto the natural-image manifold.</span></figcaption></figure>
+            <figure><img src="assets/part-a/cell-28-output-2.png" alt="First hand drawing editing results at seven start times."><figcaption><strong>Hand drawing 1</strong><span>Generic photo-prompt edit.</span></figcaption></figure>
+            <figure><img src="assets/part-a/cell-28-output-4.png" alt="Second hand drawing editing results at seven start times."><figcaption><strong>Hand drawing 2</strong><span>Generic photo-prompt edit.</span></figcaption></figure>
+          </div>
+        </section>
+
+        <section class="subpart" id="a-4">
+          <p class="subpart-number">Sections 3.2–3.4</p>
+          <h3>Text Edits, Anagrams &amp; Hybrids</h3>
+          <p class="subpart-intro">Text prompts steer the denoising trajectory while the starting time balances prompt influence against input preservation. For visual anagrams, I average a normal guided velocity with the inverse-rotated guided velocity of a second prompt. For hybrids, I combine low-frequency velocity from the distant subject with high-frequency velocity from the close subject.</p>
+          <p class="label section-label">3.2 · Text-guided image editing</p>
+          <div class="stacked-results">
+            <figure><img src="assets/part-a/cell-30-output-0.png" alt="Campanile transformed with a giant spray bottle prompt across seven start times."><figcaption><strong>Campanile → giant spray bottle</strong><span>Prompt: “a giant spray bottle.”</span></figcaption></figure>
+            <figure><img src="assets/part-a/cell-30-output-2.png" alt="Personal image transformed with a girl holding cash prompt across seven start times."><figcaption><strong>Personal image 1 → cash</strong><span>Prompt: “a girl holding multiple bands of cash.”</span></figcaption></figure>
+            <figure><img src="assets/part-a/cell-30-output-4.png" alt="Personal image transformed with a neon landscape prompt across seven start times."><figcaption><strong>Personal image 2 → neon landscape</strong><span>Prompt: “neon coloured landscape with small humans in it.”</span></figcaption></figure>
+          </div>
+
+          <p class="label section-label">3.3 · Visual anagrams</p>
+          <div class="result-grid two">
+            <figure><img src="assets/part-a/cell-32-output-0.png" alt="Visual anagram that appears as an old man upright and people around a campfire when rotated 180 degrees."><figcaption><strong>Old man / campfire</strong><span>Upright versus 180° rotation.</span></figcaption></figure>
+            <figure><img src="assets/part-a/cell-32-output-1.png" alt="Visual anagram that appears as a snowy mountain village upright and a horse when rotated 180 degrees."><figcaption><strong>Village / horse</strong><span>Upright versus 180° rotation.</span></figcaption></figure>
+          </div>
+
+          <p class="label section-label">3.4 · Hybrid images</p>
+          <div class="result-grid two hybrid-grid">
+            <figure><img src="assets/part-a/cell-34-output-1.png" alt="Hybrid image combining a waterfall when viewed nearby and a skull from a distance."><figcaption><strong>Waterfall / skull</strong><span>Close: waterfall · distant: skull.</span></figcaption></figure>
+            <figure><img src="assets/part-a/cell-34-output-5.png" alt="Hybrid image combining a forest when viewed nearby and a cat from a distance."><figcaption><strong>Forest / cat</strong><span>Close: forest · distant: cat.</span></figcaption></figure>
+          </div>
+          <div class="result-grid two hybrid-grid reduced-views">
+            <figure><img src="assets/part-a/cell-34-output-3.png" alt="Reduced 64-pixel distant view of the waterfall and skull hybrid."><figcaption><strong>Waterfall / skull · distant view</strong><span>Reduced to 64 × 64 pixels.</span></figcaption></figure>
+            <figure><img src="assets/part-a/cell-34-output-7.png" alt="Reduced 64-pixel distant view of the forest and cat hybrid."><figcaption><strong>Forest / cat · distant view</strong><span>Reduced to 64 × 64 pixels.</span></figcaption></figure>
+          </div>
+        </section>
+      </section>
+
+      <section class="part" id="part-b">
+        <div class="part-heading">
+          <p class="eyebrow">Part B</p>
+          <h2>Flow Matching from Scratch</h2>
+          <p>I trained UNets on MNIST, beginning with one-step denoising and then learning a time-conditioned flow field. The conditional model adds digit-class conditioning and classifier-free guidance to make samples controllable.</p>
+        </div>
+
+        <section class="subpart" id="b-1">
+          <p class="subpart-number">Part 1</p>
+          <h3>Single-Step Denoising UNet</h3>
+          <p class="subpart-intro">The model is trained with an L2 reconstruction loss. The first visualization applies the required range of Gaussian noise levels to a held-out MNIST digit; subsequent panels show the trained model’s behavior.</p>
+          <div class="stacked-results">
+            <figure><img src="assets/part-b/cell-14-output-0.png" alt="MNIST digit at seven increasing noise levels from zero to one."><figcaption><strong>1.2 · Forward noising process</strong><span>σ = 0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0.</span></figcaption></figure>
+            <figure><img src="assets/part-b/cell-21-output-0.png" alt="Training-loss curve for the single-step denoising UNet."><figcaption><strong>1.2.1 · Training loss</strong><span>UNet trained with σ = 0.5 noise.</span></figcaption></figure>
+            <figure><img src="assets/part-b/cell-21-output-1.png" alt="Single-step denoising examples after epoch 1."><figcaption><strong>Epoch 1</strong><span>Noisy inputs and denoised predictions.</span></figcaption></figure>
+            <figure><img src="assets/part-b/cell-21-output-2.png" alt="Single-step denoising examples after epoch 5."><figcaption><strong>Epoch 5</strong><span>Cleaner digit reconstruction after training.</span></figcaption></figure>
+            <figure><img src="assets/part-b/cell-23-output-0.png" alt="Out-of-distribution inputs across the required noise levels."><figcaption><strong>1.2.2 · OOD inputs</strong><span>One held-out digit at σ = 0.0 through 1.0.</span></figcaption></figure>
+            <figure><img src="assets/part-b/cell-23-output-1.png" alt="Denoising predictions for out-of-distribution noise levels."><figcaption><strong>OOD denoising outputs</strong><span>The same input digit restored across the required σ range.</span></figcaption></figure>
+            <figure><img src="assets/part-b/cell-25-output-7.png" alt="Training loss curve for denoising pure Gaussian noise."><figcaption><strong>1.2.3 · Pure-noise training loss</strong><span>Independent Gaussian input mapped directly to digits.</span></figcaption></figure>
+            <figure><img src="assets/part-b/cell-25-output-1.png" alt="Pure-noise denoising samples after epoch 1."><figcaption><strong>Pure noise · epoch 1</strong><span>Independent noise inputs and their predictions.</span></figcaption></figure>
+            <figure><img src="assets/part-b/cell-25-output-6.png" alt="Pure-noise denoising samples after epoch 5."><figcaption><strong>Pure noise · epoch 5</strong><span>Independent noise inputs and their predictions.</span></figcaption></figure>
+          </div>
+          <p class="result-note"><strong>Pure-noise observation:</strong> with unrelated noise as input and an MSE target, the model cannot infer a particular digit. Its outputs tend toward blurred, average digit-like strokes—the conditional mean that minimizes squared error over many possible targets.</p>
+        </section>
+
+        <section class="subpart" id="b-2">
+          <p class="subpart-number">Parts 2.1–2.3</p>
+          <h3>Time-Conditioned Flow Matching</h3>
+          <p class="subpart-intro">The time-conditioned UNet learns the velocity x₁ − x₀ for random interpolated states. During sampling, repeated Euler updates transport a Gaussian-noise image toward the digit distribution.</p>
+          <div class="stacked-results">
+            <figure><img src="assets/part-b/cell-34-output-20.png" alt="Training-loss curve for the time-conditioned flow-matching UNet."><figcaption><strong>2.2 · Flow-matching loss</strong><span>10 epochs; Adam learning rate decays from 1e-2 to 1e-3.</span></figcaption></figure>
+          </div>
+          <div class="result-grid three">
+            <figure><img src="assets/part-b/cell-36-output-0.png" alt="Samples from the time-conditioned flow model after epoch 1."><figcaption><strong>Epoch 1</strong><span>Early flow samples.</span></figcaption></figure>
+            <figure><img src="assets/part-b/cell-36-output-1.png" alt="Samples from the time-conditioned flow model after epoch 5."><figcaption><strong>Epoch 5</strong><span>More digit-like structure.</span></figcaption></figure>
+            <figure><img src="assets/part-b/cell-36-output-2.png" alt="Samples from the time-conditioned flow model after epoch 10."><figcaption><strong>Epoch 10</strong><span>Final time-only samples.</span></figcaption></figure>
+          </div>
+        </section>
+
+        <section class="subpart" id="b-3">
+          <p class="subpart-number">Parts 2.4–2.6</p>
+          <h3>Class-Conditioned Flow Matching</h3>
+          <p class="subpart-intro">Class labels are encoded as one-hot vectors, with 10% conditioning dropout during training. At sampling time, guidance scale γ = 5.0 combines conditioned and unconditioned velocities; every row below contains four instances of one requested digit.</p>
+          <div class="stacked-results">
+            <figure><img src="assets/part-b/cell-43-output-20.png" alt="Training-loss curve for the class-conditioned flow model with the exponential scheduler."><figcaption><strong>2.5 · Class-conditioned training loss</strong><span>10 epochs with the prescribed exponential learning-rate scheduler.</span></figcaption></figure>
+          </div>
+          <div class="result-grid three tall-results">
+            <figure><img src="assets/part-b/cell-45-output-0.png" alt="Class-conditioned CFG samples after epoch 1."><figcaption><strong>Epoch 1</strong><span>Four samples per digit class.</span></figcaption></figure>
+            <figure><img src="assets/part-b/cell-45-output-1.png" alt="Class-conditioned CFG samples after epoch 5."><figcaption><strong>Epoch 5</strong><span>Four samples per digit class.</span></figcaption></figure>
+            <figure><img src="assets/part-b/cell-45-output-2.png" alt="Class-conditioned CFG samples after epoch 10."><figcaption><strong>Epoch 10</strong><span>Four samples per digit class.</span></figcaption></figure>
+          </div>
+          <div class="no-scheduler">
+            <div>
+              <p class="label">Scheduler-free experiment</p>
+              <h4>Constant learning rate: 3 × 10<sup>−3</sup></h4>
+              <p>I removed the exponential scheduler and trained a separate model at a fixed 3e-3 learning rate, chosen to sit near the middle-to-late portion of the prescribed 1e-2 → 1e-3 schedule. The loss remains stable and the final samples retain good class-specific structure, showing that a suitably conservative constant rate can replace the decay schedule here.</p>
+            </div>
+            <figure><img src="assets/part-b/cell-43-output-41.png" alt="Loss curve for class-conditioned model trained without a learning rate scheduler."><figcaption><strong>Constant-LR loss curve</strong><span>No scheduler.</span></figcaption></figure>
+          </div>
+          <figure class="scheduler-free-samples"><img src="assets/part-b/cell-45-output-5.png" alt="Class-conditioned CFG samples after epoch 10 without a learning rate scheduler."><figcaption><strong>Final samples without a scheduler</strong><span>Constant 3e-3 learning rate; four samples per digit class.</span></figcaption></figure>
+        </section>
+      </section>
+
+      <section class="takeaway">
+        <p class="eyebrow">Takeaway</p>
+        <p>Across both parts, iterative velocity prediction is the key idea: a pretrained flow can reshape photographs into new images, while a small learned flow can gradually turn MNIST noise into controlled digit samples.</p>
+      </section>
+    </div>
+  </main>
+
+  <footer class="wrap">
+    <span>CS180 · Project 3 · Esther Ng Xin Yue</span>
+    <a href="#top">Back to top ↑</a>
+  </footer>
+</body>
+</html>
