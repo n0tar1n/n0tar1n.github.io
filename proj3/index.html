@@ -69,7 +69,7 @@
         <section class="subpart" id="a-2">
           <p class="subpart-number">Sections 1.5–2.1</p>
           <h3>Iterative Sampling &amp; Guidance</h3>
-          <p class="subpart-intro">Euler integration recomputes the velocity after every update, allowing the trajectory to progressively remove noise. For unconditional sampling I started from five independent noise states; classifier-free guidance uses the same starting states, so the difference is attributable to guidance.</p>
+          <p class="subpart-intro">Euler integration recomputes the velocity after every update, allowing the trajectory to progressively remove noise. For ordinary conditional sampling without CFG, I started from five independent noise states; classifier-free guidance uses the same starting states, so the difference is attributable to guidance.</p>
           <div class="stacked-results">
             <figure><img src="assets/part-a/cell-18-output-0.png" alt="Euler denoising trajectory from time 0.50 to 1.00."><figcaption><strong>1.5 · Euler denoising trajectory</strong><span>Every fifth update from t = 0.50 through t = 1.00.</span></figcaption></figure>
             <figure><img src="assets/part-a/cell-18-output-1.png" alt="Original image compared with Gaussian blur, one-step denoising, and Euler denoising."><figcaption><strong>Method comparison</strong><span>Iterative sampling preserves more detail than a single extrapolation or blur.</span></figcaption></figure>
