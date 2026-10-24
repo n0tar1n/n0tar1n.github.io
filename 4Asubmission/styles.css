@@ -1,0 +1,96 @@
+:root {
+  --ink: #222;
+  --muted: #666;
+  --line: #e5e5e5;
+  --soft: #f7f7f5;
+  --accent: #4f665c;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: #fff; color: var(--ink); font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.wrap { width: min(100% - 2.5rem, 980px); margin-inline: auto; }
+
+.site-header { border-bottom: 1px solid var(--line); }
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 54px; }
+.course { color: var(--ink); font: 600 .88rem/1 Georgia, serif; text-decoration: none; }
+.nav-links { display: flex; flex-wrap: wrap; gap: .9rem; }
+.nav-links a, footer a { color: var(--muted); font-size: .76rem; text-decoration: none; }
+.nav-links a:hover, .nav-links a:focus, footer a:hover, footer a:focus { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+
+.hero { padding: 4.2rem 0 3.4rem; border-bottom: 1px solid var(--line); }
+.eyebrow, .card-label { margin: 0 0 .45rem; color: var(--muted); font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; font-weight: 500; letter-spacing: -.02em; line-height: 1.15; }
+h1 { margin: 0; font-size: clamp(2.4rem, 5vw, 4.1rem); }
+h2 { margin: 0 0 .65rem; font-size: clamp(1.65rem, 3.4vw, 2.3rem); }
+h3 { margin: 0; font-size: 1.2rem; }
+.lede { max-width: 650px; margin: 1rem 0 0; color: var(--muted); font-size: 1rem; }
+.author { margin: 1.25rem 0 0; font: 500 .9rem/1.2 Georgia, "Times New Roman", serif; }
+
+.report > section { padding: 3.5rem 0; border-bottom: 1px solid var(--line); }
+.section-heading { max-width: 760px; }
+.section-heading > p:not(.eyebrow) { margin: 0; color: var(--muted); }
+.source-sets, .correspondences, .rectification-grid, .mosaic-results { display: grid; gap: 1.5rem; margin-top: 1.45rem; }
+.source-sets { gap: 2.2rem; }
+.set-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: .7rem; }
+.set-heading span { color: var(--muted); font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+
+.result-grid, .three-up, .method-grid, .matrix-grid { display: grid; gap: 1rem; }
+.result-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.three-up { grid-template-columns: 1.35fr repeat(2, minmax(0, 1fr)); align-items: start; }
+figure { margin: 0; overflow: hidden; border: 1px solid var(--line); background: #fff; }
+figure img { display: block; width: 100%; background: var(--soft); object-fit: contain; }
+.source-set figure img { aspect-ratio: 4 / 3; object-fit: cover; }
+figcaption { display: grid; gap: .12rem; padding: .6rem .65rem; color: var(--muted); font-size: .74rem; }
+figcaption strong { color: var(--ink); font: 600 .95rem/1.15 Georgia, serif; }
+
+.method-grid { grid-template-columns: minmax(0, 1.25fr) minmax(250px, .75fr); margin-top: 1.35rem; }
+.equation-card, .settings-card { padding: 1rem 1.15rem; background: var(--soft); border: 1px solid var(--line); }
+.equation-card > p:last-child { margin: .85rem 0 0; color: var(--muted); font-size: .88rem; }
+.equation { display: grid; gap: .35rem; overflow-x: auto; padding: .75rem .85rem; border-left: 2px solid var(--accent); background: #fff; font: .79rem/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+.settings-card dl { margin: .5rem 0 0; }
+.settings-card dl div { display: flex; justify-content: space-between; gap: .75rem; padding: .43rem 0; border-bottom: 1px solid var(--line); font-size: .8rem; }
+.settings-card dl div:last-child { border-bottom: 0; }
+.settings-card dt { color: var(--muted); }
+.settings-card dd { margin: 0; font-weight: 600; text-align: right; }
+.correspondences { gap: 1rem; }
+.evidence { margin-top: 1.3rem; border: 1px solid var(--line); }
+.evidence summary { display: flex; justify-content: space-between; gap: 1rem; padding: .8rem .9rem; cursor: pointer; font: 600 .9rem/1.3 Georgia, serif; }
+.evidence summary span { color: var(--muted); font: 600 .62rem/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: .06em; text-transform: uppercase; }
+.matrix-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 1rem; border-top: 1px solid var(--line); }
+pre { overflow-x: auto; margin: 0; padding: .75rem; background: var(--soft); font: .68rem/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+pre strong { display: block; margin-bottom: .35rem; color: var(--accent); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+
+.rectification-grid { gap: 2rem; }
+.rectification > h3 { margin-bottom: .75rem; }
+.three-up figure img { aspect-ratio: 1 / 1.15; }
+.three-up figure:first-child img { object-fit: cover; }
+.result-note { max-width: 780px; margin: 1.45rem 0 0; padding: .75rem .9rem; border-left: 2px solid var(--accent); background: var(--soft); color: var(--muted); font-size: .87rem; }
+.result-note strong { color: var(--ink); }
+
+.mosaic-results { gap: 1.25rem; }
+.mosaic-output img { max-height: 650px; object-fit: contain; background: #000; }
+.takeaway { background: var(--soft); }
+.takeaway > p:not(.eyebrow) { max-width: 720px; margin: 0; color: var(--muted); font: 1.04rem/1.7 Georgia, "Times New Roman", serif; }
+footer { display: flex; justify-content: space-between; gap: 1rem; padding: 2rem 0; color: var(--muted); font-size: .76rem; }
+
+@media (max-width: 720px) {
+  .wrap { width: min(100% - 2rem, 980px); }
+  .nav { align-items: flex-start; flex-direction: column; padding: .8rem 0; }
+  .nav-links { gap: .6rem; }
+  .hero { padding: 3rem 0 2.5rem; }
+  .report > section { padding: 2.8rem 0; }
+  .result-grid.two, .method-grid, .matrix-grid, .three-up { grid-template-columns: 1fr; }
+  .three-up figure img { aspect-ratio: auto; }
+  .evidence summary { align-items: flex-start; flex-direction: column; }
+  footer { align-items: flex-start; flex-direction: column; }
+}
+
+@media print {
+  body { font-size: 10pt; }
+  .site-header { display: none; }
+  .wrap { width: 100%; }
+  .hero { padding-top: 0; }
+  .report > section { break-inside: avoid; padding: 1.6rem 0; }
+  .evidence { break-inside: avoid; }
+}
