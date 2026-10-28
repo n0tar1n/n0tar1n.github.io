@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="CS180 Project 4A: image warping and mosaicing by Esther Ng Xin Yue.">
-  <title>CS180 Project 4A — Image Warping &amp; Mosaicing</title>
+  <meta name="description" content="CS180 Project 4: manual and automatic image warping and mosaicing by Esther Ng Xin Yue.">
+  <title>CS180 Project 4 — Image Warping &amp; Automatic Mosaicing</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -12,19 +12,19 @@
     <nav class="nav wrap" aria-label="Project navigation">
       <a class="course" href="../index.html">CS180</a>
       <div class="nav-links">
-        <a href="#capture">A.1</a>
-        <a href="#homographies">A.2</a>
-        <a href="#warping">A.3</a>
-        <a href="#mosaics">A.4</a>
+        <a href="#capture">4A</a>
+        <a href="#autostitch">4B</a>
+        <a href="#features">Features</a>
+        <a href="#comparison">Results</a>
       </div>
     </nav>
   </header>
 
   <main>
     <section class="hero wrap">
-      <p class="eyebrow">Project 04A · Fall 2026</p>
+      <p class="eyebrow">Project 04 · Fall 2026</p>
       <h1>Image Warping<br>&amp; Mosaicing</h1>
-      <p class="lede">Recovering projective transforms from manual point matches, inverse-warping images, and feather-blending them into panoramas.</p>
+      <p class="lede">From manual correspondences to automatic feature matching: recovering projective transforms, inverse-warping images, and compositing panoramas.</p>
       <p class="author">Esther Ng Xin Yue</p>
     </section>
 
@@ -162,9 +162,100 @@
         <h2>Good geometry begins with good correspondences.</h2>
         <p>Well-spread landmarks made the estimated transformations stable; inverse warping filled every destination sample; and feathered weights softened the seams that simple overwrite compositing would create.</p>
       </section>
+
+      <section id="autostitch" class="part-divider">
+        <div class="section-heading">
+          <p class="eyebrow">Part B · Feature Matching for Autostitching</p>
+          <h2>Replacing manual clicks with local features.</h2>
+          <p>Part A supplied the geometry and compositing machinery. For Part B, I estimate the same source-to-reference transformations automatically: Harris corners propose candidate landmarks, ANMS spreads them across each image, normalized patches describe their appearance, Lowe-ratio matching proposes correspondences, and four-point RANSAC rejects outliers before the Part A warp-and-blend step.</p>
+        </div>
+
+        <div class="pipeline" aria-label="Automatic stitching pipeline">
+          <span>Harris corners</span><span>ANMS</span><span>40 × 40 → 8 × 8 descriptors</span><span>Lowe ratio test</span><span>4-point RANSAC</span><span>Warp &amp; blend</span>
+        </div>
+
+        <p class="result-note"><strong>Implementation.</strong> The full pipeline is implemented in <a href="code/autostitch.py">autostitch.py</a>; the supplied Harris helper is retained in <a href="code/harris.py">harris.py</a>. All three automatic results below use the same image pairs as Part A, so the manual and automatic mosaics can be compared directly.</p>
+      </section>
+
+      <section id="features">
+        <div class="section-heading">
+          <p class="eyebrow">B.1 · Harris corners + ANMS</p>
+          <h2>Strong, well-spread candidate points.</h2>
+          <p>I compute the single-scale Harris response (σ = 1), discard border points, and retain the 3,000 strongest candidates. Adaptive non-maximal suppression selects 500 spatially distributed corners: each point is scored by its distance to a sufficiently stronger neighbor (robustness factor 0.9), which avoids concentrating all features on one highly textured area.</p>
+        </div>
+
+        <div class="feature-pair">
+          <figure><img src="assets/4b/4B/results/panorama_1/pair_1/harris_corners_a.png" alt="All detected Harris corners on the first street-view image"><figcaption><strong>Before ANMS · Image A</strong><span>Raw Harris candidates cluster around high-detail regions.</span></figcaption></figure>
+          <figure><img src="assets/4b/4B/results/panorama_1/pair_1/harris_corners_b.png" alt="All detected Harris corners on the second street-view image"><figcaption><strong>Before ANMS · Image B</strong><span>Harris response candidates in the overlapping view.</span></figcaption></figure>
+          <figure><img src="assets/4b/4B/results/panorama_1/pair_1/anms_a.png" alt="ANMS-selected corners on the first street-view image"><figcaption><strong>After ANMS · Image A</strong><span>500 corners with broader coverage.</span></figcaption></figure>
+          <figure><img src="assets/4b/4B/results/panorama_1/pair_1/anms_b.png" alt="ANMS-selected corners on the second street-view image"><figcaption><strong>After ANMS · Image B</strong><span>Distributed landmarks for matching.</span></figcaption></figure>
+        </div>
+
+        <details class="evidence" open>
+          <summary>ANMS evidence for the other two panorama pairs <span>8 overlays</span></summary>
+          <div class="diagnostic-grid">
+            <figure><img src="assets/4b/4B/results/panorama_2/pair_1/harris_corners_a.png" alt="Harris corners, courtyard image A"><figcaption><strong>Set 2 · Harris A</strong></figcaption></figure>
+            <figure><img src="assets/4b/4B/results/panorama_2/pair_1/harris_corners_b.png" alt="Harris corners, courtyard image B"><figcaption><strong>Set 2 · Harris B</strong></figcaption></figure>
+            <figure><img src="assets/4b/4B/results/panorama_2/pair_1/anms_a.png" alt="ANMS corners, courtyard image A"><figcaption><strong>Set 2 · ANMS A</strong></figcaption></figure>
+            <figure><img src="assets/4b/4B/results/panorama_2/pair_1/anms_b.png" alt="ANMS corners, courtyard image B"><figcaption><strong>Set 2 · ANMS B</strong></figcaption></figure>
+            <figure><img src="assets/4b/4B/results/panorama_3/pair_1/harris_corners_a.png" alt="Harris corners, dining-hall image A"><figcaption><strong>Set 3 · Harris A</strong></figcaption></figure>
+            <figure><img src="assets/4b/4B/results/panorama_3/pair_1/harris_corners_b.png" alt="Harris corners, dining-hall image B"><figcaption><strong>Set 3 · Harris B</strong></figcaption></figure>
+            <figure><img src="assets/4b/4B/results/panorama_3/pair_1/anms_a.png" alt="ANMS corners, dining-hall image A"><figcaption><strong>Set 3 · ANMS A</strong></figcaption></figure>
+            <figure><img src="assets/4b/4B/results/panorama_3/pair_1/anms_b.png" alt="ANMS corners, dining-hall image B"><figcaption><strong>Set 3 · ANMS B</strong></figcaption></figure>
+          </div>
+        </details>
+      </section>
+
+      <section id="descriptors">
+        <div class="section-heading">
+          <p class="eyebrow">B.2 · Feature descriptors</p>
+          <h2>Blur, sample, and normalize the local appearance.</h2>
+          <p>At every selected location, I blur the grayscale image (Gaussian σ = 1), sample an axis-aligned 40 × 40 neighborhood down to an 8 × 8 patch, flatten it, subtract its mean, and divide by its standard deviation. These bias/gain-normalized 64D vectors make matching less sensitive to local brightness and contrast changes.</p>
+        </div>
+        <div class="result-grid two descriptor-grid">
+          <figure><img src="assets/4b/4B/results/panorama_1/pair_1/descriptors_a.png" alt="Grid of normalized 8 by 8 descriptors from the first street-view image"><figcaption><strong>Image A descriptors</strong><span>Examples of normalized 8 × 8 patches sampled from 40 × 40 neighborhoods.</span></figcaption></figure>
+          <figure><img src="assets/4b/4B/results/panorama_1/pair_1/descriptors_b.png" alt="Grid of normalized 8 by 8 descriptors from the second street-view image"><figcaption><strong>Image B descriptors</strong><span>Descriptors retain local structure while suppressing intensity scale and offset.</span></figcaption></figure>
+        </div>
+      </section>
+
+      <section id="matching">
+        <div class="section-heading">
+          <p class="eyebrow">B.3–B.4 · Match and robustly estimate H</p>
+          <h2>Keep the consensus; reject the accidental look-alikes.</h2>
+          <p>I compare every descriptor in image A with descriptors in image B using squared Euclidean distance. A match is accepted only when its nearest/second-nearest distance ratio is below 0.7. RANSAC then repeatedly fits a normalized-DLT homography from four random matches (3,000 trials), scores reprojection error with a 3-pixel threshold, and refits the winning consensus set.</p>
+        </div>
+        <div class="match-results">
+          <figure><img src="assets/4b/4B/results/panorama_1/pair_1/ransac_inlier_matches.png" alt="RANSAC inlier feature matches between the street-view image pair"><figcaption><strong>Set 1 · Street view</strong><span>Feature matches retained as homography inliers.</span></figcaption></figure>
+          <figure><img src="assets/4b/4B/results/panorama_2/pair_1/ransac_inlier_matches.png" alt="RANSAC inlier feature matches between the courtyard image pair"><figcaption><strong>Set 2 · Courtyard</strong><span>Feature matches retained as homography inliers.</span></figcaption></figure>
+          <figure><img src="assets/4b/4B/results/panorama_3/pair_1/ransac_inlier_matches.png" alt="RANSAC inlier feature matches between the dining-hall image pair"><figcaption><strong>Set 3 · Dining hall</strong><span>Feature matches retained as homography inliers.</span></figcaption></figure>
+        </div>
+      </section>
+
+      <section id="comparison">
+        <div class="section-heading">
+          <p class="eyebrow">B.4 · Manual vs. automatic stitching</p>
+          <h2>Three panoramas, built two ways.</h2>
+          <p>Each automatic homography feeds the same shared-canvas inverse warp and normalized average compositing used in Part A. The manual version depends on ten hand-clicked correspondences; the automatic version obtains its geometry entirely from the feature pipeline above.</p>
+        </div>
+        <div class="comparison-grid">
+          <article>
+            <h3>Set 1 · Street view</h3>
+            <div class="result-grid two"><figure><img src="assets/mosaic_1_web.jpg" alt="Manually stitched street-view mosaic"><figcaption><strong>Manual · Part A</strong></figcaption></figure><figure><img src="assets/4b/4B/results/panorama_1/automatic_mosaic.png" alt="Automatically stitched street-view mosaic"><figcaption><strong>Automatic · Part B</strong></figcaption></figure></div>
+          </article>
+          <article>
+            <h3>Set 2 · Courtyard</h3>
+            <div class="result-grid two"><figure><img src="assets/mosaic_2_web.jpg" alt="Manually stitched courtyard mosaic"><figcaption><strong>Manual · Part A</strong></figcaption></figure><figure><img src="assets/4b/4B/results/panorama_2/automatic_mosaic.png" alt="Automatically stitched courtyard mosaic"><figcaption><strong>Automatic · Part B</strong></figcaption></figure></div>
+          </article>
+          <article>
+            <h3>Set 3 · Dining hall</h3>
+            <div class="result-grid two"><figure><img src="assets/mosaic_3_web.jpg" alt="Manually stitched dining-hall mosaic"><figcaption><strong>Manual · Part A</strong></figcaption></figure><figure><img src="assets/4b/4B/results/panorama_3/automatic_mosaic.png" alt="Automatically stitched dining-hall mosaic"><figcaption><strong>Automatic · Part B</strong></figcaption></figure></div>
+          </article>
+        </div>
+        <p class="result-note"><strong>Result.</strong> The automatic system finds enough geometrically consistent matches to produce all three mosaics without manually chosen point pairs. As in Part A, residual parallax or moving content cannot be removed by one global planar homography, and the black areas simply lie outside the image coverage of the common canvas.</p>
+      </section>
     </div>
   </main>
 
-  <footer class="wrap"><span>CS180 · Project 4A</span><a href="#top">Back to top ↑</a></footer>
+  <footer class="wrap"><span>CS180 · Project 4A + 4B</span><a href="#top">Back to top ↑</a></footer>
 </body>
 </html>
