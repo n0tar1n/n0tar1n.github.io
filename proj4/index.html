@@ -170,7 +170,7 @@
           <p>Part A supplied the geometry and compositing machinery. For Part B, I estimate the same source-to-reference transformations automatically: Harris corners propose candidate landmarks, ANMS spreads them across each image, normalized patches describe their appearance, Lowe-ratio matching proposes correspondences, and four-point RANSAC rejects outliers before the Part A warp-and-blend step.</p>
         </div>
 
-        <p class="result-note"><strong>Implementation.</strong> The full pipeline is implemented in <a href="code/autostitch.py">autostitch.py</a>; the supplied Harris helper is retained in <a href="code/harris.py">harris.py</a>. All three automatic results below use the same image pairs as Part A, so the manual and automatic mosaics can be compared directly.</p>
+        <p class="result-note"><strong>Implementation.</strong> The automatic pipeline uses Harris features, ANMS, normalized patch descriptors, Lowe-ratio matching, and RANSAC. All three automatic results below use the same image pairs as Part A, so the manual and automatic mosaics can be compared directly.</p>
       </section>
 
       <section id="features">
